@@ -46,7 +46,7 @@ public class OpenApiConfig {
                                 
                                 ## WebSocket
                                 Real-time notifications are available via STOMP over WebSocket at `/ws`. \
-                                Subscribe to `/topic/sessions/{sessionId}` for session events.
+                                Subscribe to `/topic/session/{sessionId}` for session events.
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()

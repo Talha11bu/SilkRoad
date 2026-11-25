@@ -2,26 +2,22 @@ package com.talha11bu.silkroad.services;
 
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+
 /**
- * Generates short, human-readable session identifiers.
- *
- * <p>Produces a 6-character alphanumeric string from a mixed-case seed alphabet
- * that includes letters, digits, and a few URL-safe special characters.
- * These IDs are designed to be easily shareable between users.</p>
+ * Generates short, URL-safe session identifiers.
  */
 @Service
 public class SessionIdGenerator {
 
-    /**
-     * Generates a random 6-character session ID.
-     *
-     * @return a new random session identifier (e.g., {@code "aX9.kM"}).
-     */
+    private static final String SEED = "QWERTYUIOPASDFGHJKLZXCVBNM_-.~abcdefghijklmnopqrstuvwxyz0987654321";
+    private static final int ID_LENGTH = 6;
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     public String generatedId() {
-        String seed = "QWERTYUIOPASDFGHJKLZXCVBNM_-.~abcdefghijklmnopqrstuvwxyz0987654321";
-        StringBuilder token = new StringBuilder();
-        for(int i = 0; i < 6 ; i++){
-            token.append(seed.charAt((int) Math.floor(Math.random()*seed.length())));
+        StringBuilder token = new StringBuilder(ID_LENGTH);
+        for (int i = 0; i < ID_LENGTH; i++) {
+            token.append(SEED.charAt(RANDOM.nextInt(SEED.length())));
         }
         return token.toString();
     }

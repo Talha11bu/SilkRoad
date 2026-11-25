@@ -15,7 +15,6 @@
  * <ul>
  *   <li>{@link com.talha11bu.silkroad.model.CreateRequest} &mdash; Payload for creating a new session.</li>
  *   <li>{@link com.talha11bu.silkroad.model.JoinRequest} &mdash; Payload for joining an existing session.</li>
- *   <li>{@link com.talha11bu.silkroad.model.UploadRequest} &mdash; Legacy server-proxied file upload payload.</li>
  *   <li>{@link com.talha11bu.silkroad.model.UploadCompleteRequest} &mdash; Confirmation payload after direct-to-R2 upload.</li>
  * </ul>
  *
