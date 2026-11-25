@@ -25,21 +25,22 @@ export const SessionModals = ({
 	<>
 		{/* ERROR MODAL */}
 		{isErrorOpen && (
-			<div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
-				<div className="bg-neutral-900 border border-white/10 p-8 rounded-2xl max-w-sm w-full text-center space-y-6">
-					<AlertTriangle className="text-red-500 mx-auto" size={48} />
+			<div className='min-h-screen bg-[var(--bg)] flex items-center justify-center p-4'>
+				<div className='bg-[var(--bg-surface)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-5'>
+					<AlertTriangle className='text-red-600 mx-auto' size={40} />
 					<div>
-						<h2 className="text-white font-black uppercase tracking-widest text-lg">
+						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							System Failure
 						</h2>
-						<p className="text-neutral-400 font-mono text-xs mt-2">
+						<p className='text-[var(--fg-secondary)] text-xs mt-2 leading-relaxed'>
 							Something went wrong establishing the session. Please verify
 							your credentials and try again.
 						</p>
 					</div>
 					<button
+						type='button'
 						onClick={onNavigateHome}
-						className="w-full py-3 bg-white/5 border border-white/10 rounded-lg text-white font-mono text-xs hover:bg-white/10 transition-colors uppercase tracking-widest"
+						className='w-full py-2.5 bg-[var(--fg)] text-[var(--bg)] border border-[var(--fg)] text-xs font-bold hover:bg-[var(--accent)] hover:border-[var(--accent)] transition-colors uppercase tracking-wider cursor-pointer'
 					>
 						Return to Base
 					</button>
@@ -49,23 +50,24 @@ export const SessionModals = ({
 
 		{/* EXPIRED MODAL */}
 		{isExpiredOpen && (
-			<div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
-				<div className="bg-neutral-900 border border-white/10 p-8 rounded-2xl max-w-sm w-full text-center space-y-6">
-					<ShieldAlert className="text-yellow-500 mx-auto" size={48} />
+			<div className='min-h-screen bg-[var(--bg)] flex items-center justify-center p-4'>
+				<div className='bg-[var(--bg-surface)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-5'>
+					<ShieldAlert className='text-[var(--accent)] mx-auto' size={40} />
 					<div>
-						<h2 className="text-white font-black uppercase tracking-widest text-lg">
+						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							Session Expired
 						</h2>
-						<p className="text-neutral-400 font-mono text-xs mt-2">
-							The Time-to-Live (TTL) for this tunnel has reached zero. All
-							data has been purged.
+						<p className='text-[var(--fg-secondary)] text-xs mt-2 leading-relaxed'>
+							The Time-to-Live (TTL) for this tunnel has reached zero. All data
+							has been purged.
 						</p>
 					</div>
 					<button
+						type='button'
 						onClick={onReturnToBase}
-						className="w-full py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-500 font-bold font-mono text-xs hover:bg-emerald-500 hover:text-black transition-colors uppercase tracking-widest"
+						className='w-full py-2.5 bg-[var(--fg)] text-[var(--bg)] border border-[var(--fg)] text-xs font-bold hover:bg-[var(--accent)] hover:border-[var(--accent)] transition-colors uppercase tracking-wider cursor-pointer'
 					>
-						Acknowledge & Exit
+						Acknowledge &amp; Exit
 					</button>
 				</div>
 			</div>
@@ -73,29 +75,31 @@ export const SessionModals = ({
 
 		{/* EXIT CONFIRMATION MODAL */}
 		{isExitOpen && (
-			<div className="fixed inset-0 z-100 bg-black/60 flex items-center justify-center p-4">
-				<div className="bg-[var(--bg)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-6">
-					<AlertTriangle className="text-red-500 mx-auto" size={48} />
+			<div className='fixed inset-0 z-100 bg-black/60 flex items-center justify-center p-4'>
+				<div className='bg-[var(--bg)] border border-[var(--fg)] p-6 max-w-sm w-full text-center space-y-5'>
+					<AlertTriangle className='text-red-600 mx-auto' size={36} />
 					<div>
-						<h2 className="text-[var(--fg)] font-black uppercase tracking-widest text-lg">
+						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							{isHost ? 'Terminate Session?' : 'Disconnect?'}
 						</h2>
-						<p className="text-[var(--fg-secondary)] font-mono text-xs mt-2 leading-relaxed">
+						<p className='text-[var(--fg-secondary)] text-xs mt-2 leading-relaxed'>
 							{isHost
-								? 'WARNING: This will immediately collapse the tunnel and permanently purge all files for all connected agents.'
+								? 'WARNING: This will immediately collapse the tunnel and permanently purge all files for all connected users.'
 								: 'You are about to disconnect from the secure tunnel. You will need the Access Key to rejoin.'}
 						</p>
 					</div>
-					<div className="flex gap-4">
+					<div className='flex gap-3'>
 						<button
+							type='button'
 							onClick={onExitCancel}
-							className="flex-1 py-3 bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--fg)] font-mono text-xs hover:border-[var(--fg)] transition-colors uppercase tracking-widest cursor-pointer"
+							className='flex-1 py-2.5 bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--fg)] text-xs hover:border-[var(--fg)] transition-colors uppercase tracking-wider cursor-pointer'
 						>
 							Cancel
 						</button>
 						<button
+							type='button'
 							onClick={onExitConfirm}
-							className="flex-1 py-3 bg-red-500/10 border border-red-500/30 text-red-500 font-bold font-mono text-xs hover:bg-red-500 hover:text-black transition-colors uppercase tracking-widest cursor-pointer"
+							className='flex-1 py-2.5 bg-red-600 text-white border border-red-600 font-bold text-xs hover:bg-red-700 transition-colors uppercase tracking-wider cursor-pointer'
 						>
 							{isHost ? 'Terminate' : 'Leave'}
 						</button>

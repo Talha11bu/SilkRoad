@@ -1,4 +1,5 @@
 spring.application.name=<Project Name>
+spring.config.import=optional:file:.env[.properties],optional:file:backend/.env[.properties]
 
 spring.datasource.url=jdbc:h2:mem:<PROJECT_NAME>
 spring.datasource.driverClassName=org.h2.Driver
@@ -6,10 +7,25 @@ spring.datasource.username=<YOUR_DEFINED_USERNAME>
 spring.datasource.password=<YOUR_DEFINED_PASSOWORD>
 spring.h2.console.enabled=true
 
-cloudflare.r2.endpoint=https://<YOUR_ACCOUNT_ID>.r2.cloudflarestorage.com
-cloudflare.r2.bucket-name=<YOUR_R2_BUCKET_NAME>
-cloudflare.r2.access-key=<YOUR_R2_ACCESS_KEY_ID>
-cloudflare.r2.secret-key=<YOUR_R2_SECRET_ACCESS_KEY>
+# Storage provider switch via .env:
+# - STORAGE_PROVIDER=local -> uses LocalStack S3 (LOCAL_S3_*)
+# - STORAGE_PROVIDER=prod  -> uses Cloudflare R2 (R2_*)
+storage.provider=${STORAGE_PROVIDER:prod}
+storage.path-style-access=${STORAGE_PATH_STYLE:true}
+storage.auto-create-bucket=${STORAGE_AUTO_CREATE_BUCKET:}
+
+storage.local.endpoint=${LOCAL_S3_ENDPOINT:http://localhost:4566}
+storage.local.public-endpoint=${LOCAL_S3_PUBLIC_ENDPOINT:}
+storage.local.region=${LOCAL_S3_REGION:us-east-1}
+storage.local.bucket-name=${LOCAL_S3_BUCKET:silkroad-local}
+storage.local.access-key=${LOCAL_S3_ACCESS_KEY:test}
+storage.local.secret-key=${LOCAL_S3_SECRET_KEY:test}
+
+cloudflare.r2.endpoint=${R2_ENDPOINT:https://<YOUR_ACCOUNT_ID>.r2.cloudflarestorage.com}
+cloudflare.r2.region=${R2_REGION:auto}
+cloudflare.r2.bucket-name=${R2_BUCKET:<YOUR_R2_BUCKET_NAME>}
+cloudflare.r2.access-key=${R2_ACCESS_KEY:<YOUR_R2_ACCESS_KEY_ID>}
+cloudflare.r2.secret-key=${R2_SECRET_KEY:<YOUR_R2_SECRET_ACCESS_KEY>}
 
 jwt.secret-key=<Generated 256bits/32Bytes Base64 encoded SSL String>
 

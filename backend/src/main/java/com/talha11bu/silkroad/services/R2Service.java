@@ -1,7 +1,7 @@
 package com.talha11bu.silkroad.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -51,7 +51,7 @@ public class R2Service {
     private S3Presigner r2Presigner;
 
     @Autowired
-    @Value("${cloudflare.r2.bucket-name}")
+    @Qualifier("storageBucketName")
     private String bucketName;
 
     /**

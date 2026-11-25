@@ -332,20 +332,25 @@ public class SessionController {
         }
 
         @Tag(name = "Session Management")
-        @Operation(summary = "Leave a session", description = "Removes a user from the specified session. Other users in the session will be "
-                        +
-                        "notified via WebSocket that the user has left.")
+        @Operation(summary = "Leave a session", description = "Removes the authenticated participant from the specified session and broadcasts updated user count.")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Successfully left the session"),
-                        @ApiResponse(responseCode = "500", description = "Failed to remove user from session", content = @Content)
+                        @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header", content = @Content),
+                        @ApiResponse(responseCode = "500", description = "Failed to remove participant from session", content = @Content)
         })
         @DeleteMapping("/{sessionId}/leave") // https://<SiteName>/sessions/{sessionId}/leave
         public ResponseEntity<?> leaveSession(
                         @Parameter(description = "Session ID", example = "SKR-7X9K2M", required = true) @PathVariable String sessionId,
-                        @Parameter(description = "Username of the user leaving", example = "bob", required = true) @RequestParam String username) {
+                        @Parameter(description = "Bearer JWT token", required = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+                }
+                String token = authHeader.replace("Bearer ", "");
                 try {
-                        sessionService.removeUser(sessionId, username);
+                        sessionService.removeParticipant(sessionId, token);
                         return new ResponseEntity<>(HttpStatus.OK);
+                } catch (SecurityException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 } catch (Exception e) {
                         return new ResponseEntity<>("Failed to remove", HttpStatus.INTERNAL_SERVER_ERROR);
                 }
@@ -377,18 +382,23 @@ public class SessionController {
         @Tag(name = "Session Management")
         @Operation(summary = "End a session", description = "Permanently ends a session and deletes all associated files from R2 storage. "
                         +
-                        "Only the session creator can end the session. All connected users will be notified via WebSocket.")
+                        "Only the session host can end the session. All connected users will be notified via WebSocket.")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Session ended successfully"),
+                        @ApiResponse(responseCode = "401", description = "Missing or invalid Authorization header", content = @Content),
                         @ApiResponse(responseCode = "403", description = "User is not authorized to end this session", content = @Content),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
         })
         @DeleteMapping("/{sessionId}") // https://<SiteName>/sessions/{sessionId}
         public ResponseEntity<String> endSession(
                         @Parameter(description = "Session ID", example = "SKR-7X9K2M", required = true) @PathVariable String sessionId,
-                        @Parameter(description = "Username of the session creator", example = "alice", required = true) @RequestParam String username) {
+                        @Parameter(description = "Bearer JWT token", required = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+                }
+                String token = authHeader.replace("Bearer ", "");
                 try {
-                        sessionService.endSessionByUsers(sessionId, username);
+                        sessionService.endSession(sessionId, token);
                         return new ResponseEntity<>(HttpStatus.OK);
                 } catch (SecurityException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);

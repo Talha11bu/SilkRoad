@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createSession, joinSession, rejoinSession } from '../api/sessionApi';
+import { createSession, joinSession } from '../api/sessionApi';
 import type { SessionData, SessionResponse } from '../types';
 
 export const AuthModal = ({ onClose }: { onClose: () => void }) => {
@@ -23,45 +23,26 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
 		try {
 			let response: SessionResponse;
-			const clientUsername = inputData.username as string;
 
 			if (activeTab === 'create') {
 				response = await createSession(
-					inputData.username as string,
 					inputData.password as string,
 					parseInt(inputData.duration as string, 10)
 				);
 			} else {
-				const existingToken = localStorage.getItem('silk_road_jwt');
-				let rejoined = false;
-
-				if (existingToken) {
-					const rejoinData = await rejoinSession(existingToken);
-					if (rejoinData) {
-						response = rejoinData;
-						rejoined = true;
-					}
-				}
-
-				if (!rejoined!) {
-					response = await joinSession(
-						inputData.sessionId as string,
-						inputData.username as string,
-						inputData.password as string
-					);
-				}
+				response = await joinSession(
+					inputData.sessionId as string,
+					inputData.password as string
+				);
 			}
 
-			if (!response!.token) {
+			if (!response.token) {
 				throw new Error('Authentication token missing from server response.');
 			}
 
-			localStorage.setItem('silk_road_jwt', response!.token);
+			localStorage.setItem('silk_road_jwt', response.token);
 
-			const sessionData: SessionData = {
-				...response!,
-				clientUsername,
-			};
+			const sessionData: SessionData = response;
 
 			onClose();
 			navigate('/session', { state: { sessionData } });
@@ -179,19 +160,6 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
 							/>
 						</div>
 					)}
-
-					<div>
-						<label className='block text-xs text-[var(--fg-secondary)] mb-1'>
-							username:
-						</label>
-						<input
-							type='text'
-							name='username'
-							placeholder='enter username'
-							required
-							className='w-full bg-[var(--bg)] border border-[var(--border)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] outline-none placeholder:text-[var(--fg-secondary)]'
-						/>
-					</div>
 
 					<div>
 						<label className='block text-xs text-[var(--fg-secondary)] mb-1'>

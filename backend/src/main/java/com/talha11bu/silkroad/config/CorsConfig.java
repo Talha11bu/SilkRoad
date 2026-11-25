@@ -1,5 +1,6 @@
 package com.talha11bu.silkroad.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -15,6 +16,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig {
 
+	@Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+	private String[] allowedOrigins;
+
 	/**
 	 * Registers a global CORS mapping that applies to all endpoints.
 	 *
@@ -23,15 +27,15 @@ public class CorsConfig {
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // API endpoint
-                        .allowedOrigins("http://localhost:5173") // frontend URL 
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true)
-                        .maxAge(2400);
-            }
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**") // API endpoint
+						.allowedOrigins(allowedOrigins)
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+						.allowedHeaders("*")
+						.allowCredentials(true)
+						.maxAge(2400);
+			}
 		};
 	}
 }

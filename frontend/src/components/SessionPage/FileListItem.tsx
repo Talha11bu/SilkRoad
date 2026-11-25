@@ -6,33 +6,39 @@ interface FileListItemProps {
 	onDelete: (fileName: string) => void;
 }
 
-/** A single file row with hover-reveal download/delete actions. */
+/** A single file row with download/delete actions. */
 export const FileListItem = ({
 	fileName,
 	onDownload,
 	onDelete,
 }: FileListItemProps) => (
-	<div className="group flex items-center justify-between p-3 md:p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-xl transition-all">
-		<div className="flex items-center gap-4 overflow-hidden min-w-0 flex-1">
-			<div className="p-2 bg-black/50 rounded-lg text-emerald-500 shrink-0">
-				<FileIcon size={20} />
+	<div className='group flex items-center justify-between p-3 bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors'>
+		<div className='flex items-center gap-3 overflow-hidden min-w-0 flex-1'>
+			<div className='w-7 h-7 border border-[var(--border)] bg-[var(--bg)] flex items-center justify-center text-[var(--accent)] shrink-0'>
+				<FileIcon size={15} />
 			</div>
-			<p className="truncate text-sm font-mono text-neutral-200" title={fileName}>
+			<p className='truncate text-sm text-[var(--fg)]' title={fileName}>
 				{fileName}
 			</p>
 		</div>
-		<div className="flex gap-1 md:gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+		<div className='flex gap-1.5 shrink-0 ml-2'>
 			<button
+				type='button'
 				onClick={() => onDownload(fileName)}
-				className="p-2 hover:bg-emerald-500/20 text-emerald-500 rounded-lg transition-colors"
+				className='p-1.5 border border-[var(--border)] bg-[var(--bg)] text-[var(--accent)] hover:border-[var(--accent)] cursor-pointer transition-colors'
+				aria-label={`Download ${fileName}`}
+				title='Download'
 			>
-				<Download size={16} />
+				<Download size={14} />
 			</button>
 			<button
+				type='button'
 				onClick={() => onDelete(fileName)}
-				className="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+				className='p-1.5 border border-[var(--border)] bg-[var(--bg)] text-red-600 hover:border-red-600 cursor-pointer transition-colors'
+				aria-label={`Delete ${fileName}`}
+				title='Delete'
 			>
-				<Trash2 size={16} />
+				<Trash2 size={14} />
 			</button>
 		</div>
 	</div>

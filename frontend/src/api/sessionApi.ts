@@ -1,12 +1,11 @@
 /**
- * API functions for session lifecycle operations (create, join, rejoin).
+ * API functions for session lifecycle operations (create, join, rejoin, exit).
  */
 import { API_BASE } from '../config';
 import type { SessionResponse } from '../types';
 
-/** Creates a new session. Returns the full session response with JWT. */
+/** Creates a new anonymous session. Returns the full session response with JWT. */
 export async function createSession(
-	username: string,
 	password: string,
 	durationMinutes: number
 ): Promise<SessionResponse> {
@@ -14,7 +13,6 @@ export async function createSession(
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
-			username,
 			password,
 			duration: `PT${durationMinutes}M`,
 		}),
@@ -31,7 +29,6 @@ export async function createSession(
 /** Joins an existing session by ID and password. */
 export async function joinSession(
 	sessionId: string,
-	username: string,
 	password: string
 ): Promise<SessionResponse> {
 	const res = await fetch(`${API_BASE}/sessions/join`, {
@@ -39,7 +36,6 @@ export async function joinSession(
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			sessionId: sessionId.trim(),
-			username,
 			password,
 		}),
 	});
@@ -55,7 +51,7 @@ export async function joinSession(
 	return data;
 }
 
-/** Attempts to rejoin a session using an existing JWT token. Returns null if the token is expired/invalid. */
+/** Attempts to rejoin a session using an existing JWT token. */
 export async function rejoinSession(
 	token: string
 ): Promise<SessionResponse | null> {
@@ -76,15 +72,20 @@ export async function rejoinSession(
 	}
 }
 
-/** Ends/leaves a session depending on whether the user is the host. */
+/** Ends or leaves a session using the participant's JWT token. */
 export async function exitSession(
 	sessionId: string,
-	username: string,
 	isHost: boolean
 ): Promise<void> {
-	const endpoint = isHost
-		? `${API_BASE}/sessions/${sessionId}?username=${username}`
-		: `${API_BASE}/sessions/${sessionId}/leave?username=${username}`;
+	const token = localStorage.getItem('silk_road_jwt');
+	if (!token) return;
 
-	await fetch(endpoint, { method: 'DELETE' });
+	const endpoint = isHost
+		? `${API_BASE}/sessions/${sessionId}`
+		: `${API_BASE}/sessions/${sessionId}/leave`;
+
+	await fetch(endpoint, {
+		method: 'DELETE',
+		headers: { Authorization: `Bearer ${token}` },
+	});
 }

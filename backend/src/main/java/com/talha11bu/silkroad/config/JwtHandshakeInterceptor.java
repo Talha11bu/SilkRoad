@@ -60,9 +60,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             // 2. Validate and Parse
             Claims claims = jwtTokenService.validateAndParseToken(token);
 
-            // 3. Store identity in session attributes for the DisconnectListener
-            attributes.put("displayName", claims.getSubject());
-            attributes.put("sessionId", claims.get("sessionId", String.class));
+            // 3. Store anonymous participant identity in session attributes
+            attributes.put("participantId", claims.getSubject());
+            attributes.put("sessionId", jwtTokenService.extractSessionId(claims));
 
             return true;
         } catch (Exception e) {

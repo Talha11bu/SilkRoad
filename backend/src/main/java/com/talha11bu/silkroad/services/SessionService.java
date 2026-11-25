@@ -20,17 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
- * Core service orchestrating all session lifecycle operations.
- *
- * <p>Manages creation, joining, rejoining, and termination of ephemeral
- * file-sharing sessions. Coordinates between the database repositories,
- * JWT authentication, R2 cloud storage, and WebSocket notifications.</p>
- *
- * <p>Also runs a scheduled cleanup job to purge expired and abandoned sessions.</p>
- *
- * @see com.talha11bu.silkroad.services.R2Service
- * @see com.talha11bu.silkroad.services.NotiffService
- * @see com.talha11bu.silkroad.services.JwtTokenService
+ * Core service orchestrating all anonymous session lifecycle operations.
  */
 @Service
 public class SessionService {
@@ -50,17 +40,6 @@ public class SessionService {
     @Autowired
     private R2Service r2Service;
 
-    /**
-     * Initializes a new secure file-sharing session.
-     * Generates a unique session ID, sets the expiration based on the requested
-     * duration,
-     * securely hashes the password, and creates the host's authentication JWT
-     * token.
-     *
-     * @param request Contains the desired username, password, and session duration.
-     * @return CreateResponse containing the JWT token, session details, and success
-     *         status.
-     */
     @Transactional
     public CreateResponse createSession(CreateRequest request) {
         try {
@@ -70,138 +49,95 @@ public class SessionService {
             Session newSession = new Session(newSessionId, request.password(), expiration);
             Session savedSession = sessionRepo.save(newSession);
 
-            String token = registerUser(savedSession, request.username());
+            String token = registerUser(savedSession, true);
 
-            return new CreateResponse(true, token, savedSession, request.duration());
+            return new CreateResponse(true, token, savedSession, request.duration(), true);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new CreateResponse(false, null, null, null);
+            return new CreateResponse(false, null, null, null, false);
         }
     }
 
-    /**
-     * Attempts to join an active session.
-     * Validates the session existence, password match, and ensures the session
-     * hasn't expired.
-     * Upon success, generates a JWT for the joining user and broadcasts a
-     * 'USER_JOINED' notification via WebSocket.
-     *
-     * @param request Contains the session ID to join, the password, and the
-     *                username.
-     * @return JoinResponse containing the JWT token, session state, and remaining
-     *         time.
-     */
     @Transactional
     public JoinResponse joinSession(JoinRequest request) {
         try {
             Session session = sessionRepo.findById(request.sessionId()).orElseThrow();
 
             if (!request.password().equals(session.getPassword()) || session.isExpired()) {
-                return new JoinResponse(false, null, null, null);
+                return new JoinResponse(false, null, null, null, false);
             }
 
             Duration timeLeft = Duration.between(Instant.now(), session.getExpiresAt());
             if (timeLeft.isNegative()) {
-                return new JoinResponse(false, null, null, null);
+                return new JoinResponse(false, null, null, null, false);
             }
 
-            String token = registerUser(session, request.username());
+            String token = registerUser(session, false);
+            int userCount = session.getUserCount();
 
-            SessionNotiff joinNotification = new SessionNotiff(SessionNotiff.NotifyType.USER_JOINED,
-                    session.getSessionId(), request.username());
+            SessionNotiff joinNotification = new SessionNotiff(
+                    SessionNotiff.NotifyType.USER_JOINED,
+                    session.getSessionId(),
+                    String.valueOf(userCount));
 
             notiffService.notifySessionMembers(session.getSessionId(), joinNotification);
 
-            return new JoinResponse(true, token, session, timeLeft);
+            return new JoinResponse(true, token, session, timeLeft, false);
 
         } catch (Exception e) {
-            return new JoinResponse(false, null, null, null);
+            return new JoinResponse(false, null, null, null, false);
         }
     }
 
-    /**
-     * Generates a JWT token for a user, persists the user entity, and assigns
-     * them to the session's WebSocket topic.
-     *
-     * @param session  the session the user is being registered into.
-     * @param username the user's display name.
-     * @return the signed JWT token for the user.
-     */
-    private String registerUser(Session session, String username) {
-        String token = jwtTokenService.generateToken(session.getSessionId(), username);
-        Users user = new Users(username, token, "/topic/session/" + session.getSessionId(), session);
+    private String registerUser(Session session, boolean isHost) {
+        String participantId = UUID.randomUUID().toString();
+        String token = jwtTokenService.generateToken(session.getSessionId(), participantId, isHost);
+        Users user = new Users(participantId, isHost, token, "/topic/session/" + session.getSessionId(), session);
         userRepo.save(user);
+        session.getUsers().add(user);
         return token;
     }
 
-    /**
-     * Allows a previously authenticated user to rejoin a session using their existing JWT.
-     * Useful for reconnecting after a page refresh or connection drop.
-     *
-     * @param token the user's existing JWT token.
-     * @return JoinResponse with the current session state and remaining time.
-     */
+    @Transactional(readOnly = true)
     public JoinResponse rejoinSession(String token) {
         Claims claims = jwtTokenService.validateAndParseToken(token);
-        String sessionId = claims.get("sid", String.class);
+        String sessionId = jwtTokenService.extractSessionId(claims);
+        boolean isHost = jwtTokenService.isHost(claims);
 
         try {
             Session session = sessionRepo.findById(sessionId).orElseThrow();
+            session.getUserCount();
+            session.getFiles().size();
             Duration timeLeft = Duration.between(Instant.now(), session.getExpiresAt());
 
-            return new JoinResponse(true, token, session, timeLeft);
+            return new JoinResponse(true, token, session, timeLeft, isHost);
         } catch (Exception e) {
-            return new JoinResponse(false, null, null, null);
+            return new JoinResponse(false, null, null, null, false);
         }
     }
 
-    /**
-     * Retrieves a pre-signed URL from the R2Service to allow direct client-side
-     * uploads.
-     * Validates the user's JWT to ensure they belong to the targeted session.
-     *
-     * @param sessionId   The ID of the session.
-     * @param fileName    The original name of the file to be uploaded.
-     * @param contentType The MIME type of the file.
-     * @param token       The JWT token of the requesting user.
-     * @return A map containing the upload URL and the R2 file key.
-     */
-    public java.util.Map<String, String> getPreSignedUploadUrl(String sessionId, String fileName, String contentType,
-            String token) {
+    private Claims assertSessionAccess(String token, String sessionId, String errorMessage) {
         Claims claims = jwtTokenService.validateAndParseToken(token);
-        String tokenSessionId = claims.get("sid", String.class);
-
+        String tokenSessionId = jwtTokenService.extractSessionId(claims);
         if (tokenSessionId == null || !tokenSessionId.equals(sessionId)) {
-            throw new SecurityException("You do not have access to this session.");
+            throw new SecurityException(errorMessage);
         }
+        return claims;
+    }
+
+    public Map<String, String> getPreSignedUploadUrl(String sessionId, String fileName, String contentType,
+            String token) {
+        assertSessionAccess(token, sessionId, "You do not have access to this session.");
 
         sessionRepo.findById(sessionId).orElseThrow(() -> new NoSuchElementException("Session not found."));
 
         return r2Service.generatePreSignedUploadUrl(sessionId, fileName, contentType);
     }
 
-    /**
-     * Confirms that a file has been successfully uploaded to R2 directly by the
-     * client.
-     * Validates the JWT, registers the file entity in the database, and broadcasts
-     * a 'FILE_UPLOADED' WebSocket notification.
-     *
-     * @param sessionId The active session ID.
-     * @param fileName  The original filename shown to users.
-     * @param fileKey   The internal R2 storage key.
-     * @param fileSize  The size of the file in bytes.
-     * @param token     The JWT token confirming user authorization.
-     * @return UploadResponse indicating success.
-     */
     @Transactional
     public UploadResponse confirmFileUpload(String sessionId, String fileName, String fileKey, long fileSize,
             String token) {
-        Claims claims = jwtTokenService.validateAndParseToken(token);
-        String tokenSessionId = claims.get("sid", String.class);
-
-        if (tokenSessionId == null || !tokenSessionId.equals(sessionId)) {
-            throw new SecurityException("You do not have access to this session.");
-        }
+        assertSessionAccess(token, sessionId, "You do not have access to this session.");
 
         Session session = sessionRepo.findById(sessionId).orElseThrow(() -> new RuntimeException("Session not found."));
 
@@ -214,16 +150,6 @@ public class SessionService {
         return new UploadResponse(fileName, "", fileSize);
     }
 
-    /**
-     * Downloads a single file from R2 after validating the session password.
-     *
-     * @param sessionId the ID of the session.
-     * @param password  the session password for authorization.
-     * @param filename  the original filename to download.
-     * @return the file as a Spring {@link Resource}.
-     * @throws NoSuchElementException if the file is not found.
-     * @throws SecurityException      if the password is wrong or the session has expired.
-     */
     public Resource downloadFile(String sessionId, String password, String filename) {
         Files file = filesRepo.findByFileNameAndSessionSessionId(filename, sessionId).orElseThrow(
                 () -> new NoSuchElementException("File " + filename + " not found in session " + sessionId));
@@ -242,23 +168,8 @@ public class SessionService {
         }
     }
 
-    /**
-     * Generates a time-limited pre-signed download URL for a specific file.
-     * Validates the user's JWT to ensure they belong to the targeted session.
-     *
-     * @param sessionId the ID of the session.
-     * @param fileName  the original filename to generate a URL for.
-     * @param token     the JWT token of the requesting user.
-     * @return the pre-signed download URL, or {@code null} if the file is not found.
-     */
     public String getPreSignedUrlForFile(String sessionId, String fileName, String token) {
-        // 1. Verify the user is authenticated for this specific session
-        Claims claims = jwtTokenService.validateAndParseToken(token);
-        String tokenSessionId = claims.get("sid", String.class);
-
-        if (tokenSessionId == null || !tokenSessionId.equals(sessionId)) {
-            throw new SecurityException("You do not have access to this session's files.");
-        }
+        assertSessionAccess(token, sessionId, "You do not have access to this session's files.");
         try {
             Files file = filesRepo.findByFileNameAndSessionSessionId(fileName, sessionId).orElseThrow();
 
@@ -268,16 +179,6 @@ public class SessionService {
         }
     }
 
-    /**
-     * Downloads all files in a session as a single ZIP archive.
-     * Validates the session password and expiration before streaming.
-     *
-     * @param sessionId the ID of the session.
-     * @param password  the session password for authorization.
-     * @return a {@link Resource} containing the streamed ZIP archive.
-     * @throws NoSuchElementException if the session is not found or has no files.
-     * @throws SecurityException      if the password is wrong or the session has expired.
-     */
     public Resource downloadAllFilesAsZip(String sessionId, String password) {
         Session session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new NoSuchElementException("Session not found"));
@@ -300,22 +201,14 @@ public class SessionService {
         }
     }
 
-    /**
-     * Terminates a session by deleting all associated R2 files and removing the session
-     * from the database. Broadcasts a closure notification to all connected clients.
-     *
-     * @param sessionId the ID of the session to end.
-     * @param username  the username of the user requesting the termination.
-     * @throws SecurityException if the user is not a member of the session.
-     */
     @Transactional
-    public void endSessionByUsers(String sessionId, String username) {
-        Session session = sessionRepo.findById(sessionId).orElseThrow();
-
-        if (!session.getUsers().toString().contains(username)) {
-            throw new SecurityException(username + "user not Authorized");
+    public void endSession(String sessionId, String token) {
+        Claims claims = assertSessionAccess(token, sessionId, "User not authorized to end this session");
+        if (!jwtTokenService.isHost(claims)) {
+            throw new SecurityException("Only the session host can end the session");
         }
 
+        Session session = sessionRepo.findById(sessionId).orElseThrow();
         List<String> keysToDelete = session.getFiles().stream().map(Files::getR2Key).toList();
 
         if (!keysToDelete.isEmpty()) {
@@ -328,40 +221,28 @@ public class SessionService {
             }
         }
         sessionRepo.delete(session);
-        notiffService.sessionClosedNotiff(sessionId, username);
+        notiffService.sessionClosedNotiff(sessionId);
     }
 
-    /**
-     * Removes a user from a session and broadcasts a 'USER_LEFT' notification.
-     *
-     * @param sessionId the ID of the session.
-     * @param username  the display name of the user to remove.
-     * @throws NoSuchElementException if the user is not found in the session.
-     */
     @Transactional
-    public void removeUser(String sessionId, String username) {
-        Optional<Users> user = userRepo.findByUsernameAndSessionSessionId(username, sessionId);
+    public void removeParticipant(String sessionId, String token) {
+        Claims claims = assertSessionAccess(token, sessionId, "User not authorized for this session");
+        String participantId = claims.getSubject();
 
-        if (user.isEmpty())
-            throw new NoSuchElementException(username);
-
-        Users userToRemove = user.get();
+        Users userToRemove = userRepo.findByParticipantIdAndSessionSessionId(participantId, sessionId)
+                .orElseThrow(() -> new NoSuchElementException("Participant not found"));
 
         userRepo.delete(userToRemove);
+        long remainingCount = Math.max(0, userRepo.countBySessionSessionId(sessionId));
 
-        SessionNotiff leaveNotiff = new SessionNotiff(SessionNotiff.NotifyType.USER_LEFT, sessionId, username);
+        SessionNotiff leaveNotiff = new SessionNotiff(
+                SessionNotiff.NotifyType.USER_LEFT,
+                sessionId,
+                String.valueOf(remainingCount));
 
         notiffService.notifySessionMembers(sessionId, leaveNotiff);
     }
 
-    /**
-     * Deletes a single file from R2 and the database, then broadcasts
-     * a 'FILE_DELETED' notification to all session subscribers.
-     *
-     * @param sessionId the ID of the session.
-     * @param fileName  the original filename of the file to delete.
-     * @throws NoSuchElementException if the file is not found.
-     */
     public void deleteFile(String sessionId, String fileName) {
         Files file = filesRepo.findByFileNameAndSessionSessionId(fileName, sessionId)
                 .orElseThrow(() -> new NoSuchElementException("File " + fileName + " does not exist"));
@@ -379,14 +260,6 @@ public class SessionService {
         notiffService.notifySessionMembers(sessionId, deletionNotiff);
     }
 
-    /**
-     * Scheduled cron job that runs every 5 minutes to clean up dead sessions.
-     * It sweeps the database for sessions that have either naturally expired via
-     * their duration
-     * or have been abandoned (no users) for over 2 minutes.
-     * Safely deletes all associated files from R2 before wiping the database
-     * records.
-     */
     @Scheduled(cron = "* 5 * * * *")
     @Transactional
     public void cleanupExpiredSessions() {

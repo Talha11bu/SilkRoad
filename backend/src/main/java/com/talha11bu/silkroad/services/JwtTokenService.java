@@ -12,19 +12,16 @@ import java.security.Key;
 import java.util.Date;
 
 /**
- * Service for generating and validating JSON Web Tokens (JWT).
+ * Service for generating and validating anonymous session JSON Web Tokens (JWT).
  *
- * <p>Tokens encode the user's display name as the subject and the session ID
- * as a custom claim. They are signed with HMAC-SHA256 using a configurable
- * Base64-encoded secret key and expire after a configurable duration.</p>
- *
- * <p>Used by all authenticated endpoints and the WebSocket handshake interceptor
- * to verify user identity.</p>
- *
- * @see com.talha11bu.silkroad.config.JwtHandshakeInterceptor
+ * <p>Tokens encode an anonymous participant UUID as the subject, the active
+ * session ID, and whether the participant is the host.</p>
  */
 @Service
 public class JwtTokenService {
+
+	public static final String SESSION_ID_CLAIM = "sessionId";
+	public static final String HOST_CLAIM = "host";
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -38,31 +35,35 @@ public class JwtTokenService {
 	}
 
 	/**
-	 * Generates a signed JWT token used to authenticate users during a session.
-	 * The token encodes the user's display name as the subject and attaches the active session ID as a claim.
+	 * Generates a signed JWT token for an anonymous session participant.
 	 *
-	 * @param sessionId   The ID of the session the user joined or created.
-	 * @param displayName The chosen username of the user.
-	 * @return A signed JWT string valid for the configured expiration duration.
+	 * @param sessionId     The ID of the session the participant joined or created.
+	 * @param participantId Server-generated anonymous participant UUID.
+	 * @param isHost        {@code true} if this participant created the session.
+	 * @return A signed JWT string.
 	 */
-	public String generateToken(String sessionId, String displayName) {
+	public String generateToken(String sessionId, String participantId, boolean isHost) {
 		return Jwts.builder()
-                .setSubject(displayName)
-                .claim("sessionId", sessionId)
+				.setSubject(participantId)
+				.claim(SESSION_ID_CLAIM, sessionId)
+				.claim(HOST_CLAIM, isHost)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-				.signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+				.signWith(getSigningKey(), SignatureAlgorithm.HS256)
+				.compact();
 	}
 
-	/**
-	 * Validates the signature of the provided JWT token and parses its claims.
-	 * If the token is expired or tampered with, this will throw an exception (handled securely upstream).
-	 *
-	 * @param token The JWT string to validate.
-	 * @return The parsed claims (containing subject, sessionId, issue date, etc).
-	 */
 	public Claims validateAndParseToken(String token) {
 		return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
 				.getBody();
+	}
+
+	public String extractSessionId(Claims claims) {
+		return claims.get(SESSION_ID_CLAIM, String.class);
+	}
+
+	public boolean isHost(Claims claims) {
+		Boolean host = claims.get(HOST_CLAIM, Boolean.class);
+		return Boolean.TRUE.equals(host);
 	}
 }

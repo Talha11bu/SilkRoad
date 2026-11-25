@@ -4,17 +4,16 @@ import { WS_BASE } from '../config';
 import type { SessionNotification } from '../types';
 
 /**
- * Custom hook encapsulating the full STOMP WebSocket lifecycle.
- * Connects on mount, subscribes to the session topic, dispatches state
- * updates for user/file events, and disconnects on unmount.
+ * Custom hook encapsulating the STOMP WebSocket lifecycle.
+ * Tracks connected user count and session file names.
  */
 export function useSessionWebSocket(
 	sessionId: string | undefined,
-	initialUsers: string[],
+	initialUserCount: number,
 	initialFiles: string[],
 	onSessionEnded: () => void
 ) {
-	const [users, setUsers] = useState<string[]>(initialUsers);
+	const [userCount, setUserCount] = useState<number>(initialUserCount);
 	const [files, setFiles] = useState<string[]>(initialFiles);
 	const stompClient = useRef<Client | null>(null);
 
@@ -32,10 +31,7 @@ export function useSessionWebSocket(
 			brokerURL: `${WS_BASE}?token=${token}`,
 			reconnectDelay: 5000,
 			onConnect: () => {
-				console.log('WebSocket Connected!');
-
 				client.subscribe(`/topic/session/${sessionId}`, (message) => {
-					// Raw text termination message from NotiffService
 					if (message.body.includes('successfully ended')) {
 						onSessionEndedRef.current();
 						return;
@@ -43,13 +39,20 @@ export function useSessionWebSocket(
 
 					try {
 						const data: SessionNotification = JSON.parse(message.body);
+						const parsedCount = Number.parseInt(data.payload, 10);
 
 						switch (data.type) {
 							case 'USER_JOINED':
-								setUsers((prev) => [...new Set([...prev, data.payload])]);
+								setUserCount((prev) =>
+									Number.isNaN(parsedCount) ? prev + 1 : parsedCount
+								);
 								break;
 							case 'USER_LEFT':
-								setUsers((prev) => prev.filter((u) => u !== data.payload));
+								setUserCount((prev) =>
+									Number.isNaN(parsedCount)
+										? Math.max(0, prev - 1)
+										: parsedCount
+								);
 								break;
 							case 'FILE_UPLOADED':
 								setFiles((prev) => [...new Set([...prev, data.payload])]);
@@ -82,5 +85,5 @@ export function useSessionWebSocket(
 		if (stompClient.current) stompClient.current.deactivate();
 	};
 
-	return { users, files, disconnect };
+	return { userCount, files, disconnect };
 }

@@ -1,8 +1,10 @@
 package com.talha11bu.silkroad;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +21,21 @@ class JwtTokenServiceTest {
     private JwtTokenService jwtTokenService;
 
     @Test
-    void shouldGenerateAndValidateToken() {
+    void shouldGenerateAndValidateAnonymousToken() {
         String sessionId = "test-session";
-        String name = "Tester";
+        String participantId = "anon-uuid-123";
 
-        String token = jwtTokenService.generateToken(sessionId, name);
-        assertNotNull(token);
+        String hostToken = jwtTokenService.generateToken(sessionId, participantId, true);
+        assertNotNull(hostToken);
 
-        Claims claims = jwtTokenService.validateAndParseToken(token);
-        assertEquals(name, claims.getSubject());
-        assertEquals(sessionId, claims.get("sid"));
+        Claims hostClaims = jwtTokenService.validateAndParseToken(hostToken);
+        assertEquals(participantId, hostClaims.getSubject());
+        assertEquals(sessionId, jwtTokenService.extractSessionId(hostClaims));
+        assertTrue(jwtTokenService.isHost(hostClaims));
+
+        String guestToken = jwtTokenService.generateToken(sessionId, "anon-uuid-456", false);
+        Claims guestClaims = jwtTokenService.validateAndParseToken(guestToken);
+        assertFalse(jwtTokenService.isHost(guestClaims));
     }
 
     @Test
@@ -36,5 +43,3 @@ class JwtTokenServiceTest {
         assertThrows(Exception.class, () -> jwtTokenService.validateAndParseToken("invalid.token.here"));
     }
 }
-
-

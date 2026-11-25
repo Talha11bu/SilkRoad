@@ -3,12 +3,14 @@ import { Clock } from 'lucide-react';
 
 interface CountdownTimerProps {
 	expiresAt?: string;
-	durationStr?: string; 
+	durationStr?: string;
 	onExpire: () => void;
 }
 
 const parseJavaDuration = (duration: string): number => {
-	const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/);
+	const match = duration.match(
+		/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/
+	);
 	if (!match) return 0;
 	const hours = parseInt(match[1] || '0', 10);
 	const mins = parseInt(match[2] || '0', 10);
@@ -16,11 +18,16 @@ const parseJavaDuration = (duration: string): number => {
 	return hours * 3600 + mins * 60 + Math.floor(secs);
 };
 
-export const CountdownTimer = ({ expiresAt, durationStr, onExpire }: CountdownTimerProps) => {
-	
+export const CountdownTimer = ({
+	expiresAt,
+	durationStr,
+	onExpire,
+}: CountdownTimerProps) => {
 	const getInitialTime = () => {
 		if (expiresAt) {
-			const diffInSeconds = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
+			const diffInSeconds = Math.floor(
+				(new Date(expiresAt).getTime() - Date.now()) / 1000
+			);
 			return Math.max(0, diffInSeconds);
 		}
 		if (durationStr) return parseJavaDuration(durationStr);
@@ -29,16 +36,15 @@ export const CountdownTimer = ({ expiresAt, durationStr, onExpire }: CountdownTi
 
 	const [timeLeft, setTimeLeft] = useState(getInitialTime);
 
-
-
-
 	useEffect(() => {
-		if (timeLeft <= 0) return; // Stop ticking if we are already at 0
+		if (timeLeft <= 0) return;
 
 		const interval = setInterval(() => {
 			setTimeLeft((prev) => {
 				if (expiresAt && prev % 10 === 0) {
-					const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
+					const diff = Math.floor(
+						(new Date(expiresAt).getTime() - Date.now()) / 1000
+					);
 					return Math.max(0, diff);
 				}
 				return Math.max(0, prev - 1);
@@ -46,7 +52,7 @@ export const CountdownTimer = ({ expiresAt, durationStr, onExpire }: CountdownTi
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [expiresAt, timeLeft]); 
+	}, [expiresAt, timeLeft]);
 
 	useEffect(() => {
 		if (timeLeft === 0) {
@@ -58,22 +64,25 @@ export const CountdownTimer = ({ expiresAt, durationStr, onExpire }: CountdownTi
 		const h = Math.floor(totalSeconds / 3600);
 		const m = Math.floor((totalSeconds % 3600) / 60);
 		const s = totalSeconds % 60;
-		if (h > 0) return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+		if (h > 0) {
+			return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+		}
 		return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 	};
 
 	const isLowTime = timeLeft < 60 && timeLeft > 0;
 
 	return (
-		<div className={`w-fit flex items-center gap-2 px-4 py-2 rounded-full border transition-colors ${
-			isLowTime ? 'bg-red-500/10 border-red-500/30 text-red-500 animate-pulse' : 'bg-white/5 border-white/10 text-emerald-500'
-		}`}>
-			<Clock size={16} className={isLowTime ? 'text-red-500' : 'text-emerald-500'} />
-			<div className="flex items-baseline gap-2">
-				<p className="text-lg font-black font-mono tracking-tighter leading-none">
-					{formatTime(timeLeft)}
-				</p>
-			</div>
+		<div
+			className={`inline-flex items-center gap-1.5 px-2.5 py-1 border text-xs font-bold ${
+				isLowTime
+					? 'border-red-600 text-red-600 bg-red-600/10'
+					: 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--accent)]'
+			}`}
+			title='Time remaining'
+		>
+			<Clock size={13} />
+			<span>{formatTime(timeLeft)}</span>
 		</div>
 	);
 };

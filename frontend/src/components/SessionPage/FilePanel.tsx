@@ -1,12 +1,5 @@
 import { useState, useRef } from 'react';
-import {
-	Upload,
-	Search,
-	File as FileIcon,
-	Loader2,
-	Plus,
-	Archive,
-} from 'lucide-react';
+import { Upload, Search, File as FileIcon, Loader2, Archive } from 'lucide-react';
 import {
 	getUploadUrl,
 	uploadToR2,
@@ -27,6 +20,7 @@ interface FilePanelProps {
 export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isUploading, setIsUploading] = useState(false);
+	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [fileToDelete, setFileToDelete] = useState<string | null>(null);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +33,7 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 		const selectedFile = e.target.files?.[0];
 		if (!selectedFile) return;
 
+		setUploadError(null);
 		setIsUploading(true);
 
 		try {
@@ -63,6 +58,9 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 			);
 		} catch (error) {
 			console.error('Upload failed', error);
+			setUploadError(
+				error instanceof Error ? error.message : 'File upload failed.'
+			);
 		} finally {
 			setIsUploading(false);
 			if (fileInputRef.current) fileInputRef.current.value = '';
@@ -118,96 +116,101 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 	};
 
 	return (
-		<div className="flex flex-col w-full min-h-full p-4 md:p-8 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.03)_0%,transparent_60%)]">
+		<main className='flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col'>
 			{/* HIDDEN FILE INPUT */}
 			<input
-				type="file"
-				className="hidden"
+				type='file'
+				className='hidden'
 				ref={fileInputRef}
 				onChange={handleUpload}
 			/>
 
-			<div className="w-full max-w-5xl mx-auto flex flex-col">
-				{/* Search & Upload Row */}
-				<div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 mb-4 w-full">
-					<div className="relative flex-1 w-full">
-						<Search
-							size={16}
-							className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
-						/>
-						<input
-							type="text"
-							placeholder="SEARCH FILES..."
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono uppercase tracking-widest outline-none focus:border-emerald-500/50 transition-colors placeholder:text-neutral-600"
-						/>
-					</div>
-
-					<button
-						onClick={() => fileInputRef.current?.click()}
-						disabled={isUploading}
-						className="hidden md:flex shrink-0 items-center justify-center gap-2 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-400 transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-					>
-						{isUploading ? (
-							<Loader2 size={16} className="animate-spin" />
-						) : (
-							<Upload size={16} />
-						)}
-						Upload File
-					</button>
+			{/* Search & Upload Row */}
+			<div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4 w-full'>
+				<div className='relative flex-1'>
+					<Search
+						size={15}
+						className='absolute left-3 top-1/2 -translate-y-1/2 text-[var(--fg-secondary)]'
+					/>
+					<input
+						type='text'
+						placeholder='search files...'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='w-full bg-[var(--bg-surface)] border border-[var(--border)] pl-9 pr-3 py-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--accent)] placeholder:text-[var(--fg-secondary)]'
+					/>
 				</div>
 
-				{/* Download All ZIP */}
-				{files.length > 0 && (
-					<div className="flex justify-start mb-6 w-full">
-						<button
-							onClick={handleDownloadAll}
-							className="flex items-center gap-2 text-[10px] md:text-xs font-mono font-bold tracking-widest uppercase text-emerald-500 hover:text-black border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500 px-4 py-2 rounded-lg transition-colors"
-						>
-							<Archive size={14} /> Download All (.zip)
-						</button>
-					</div>
-				)}
-
-				{/* File List */}
-				<div className="w-full space-y-2 pb-24 md:pb-8">
-					{files.length === 0 ? (
-						<div className="w-full min-h-[40vh] md:min-h-75 flex flex-col items-center justify-center text-neutral-600 border-2 border-dashed border-white/5 rounded-3xl mt-4">
-							<FileIcon size={48} className="mb-4 opacity-20" />
-							<p className="font-mono text-sm uppercase tracking-widest text-center px-4">
-								Awaiting Upload Sequence
-							</p>
-						</div>
-					) : filteredFiles.length === 0 ? (
-						<div className="text-center text-neutral-500 font-mono text-xs uppercase mt-10 tracking-widest">
-							No files match query
-						</div>
+				<button
+					type='button'
+					onClick={() => fileInputRef.current?.click()}
+					disabled={isUploading}
+					className='shrink-0 inline-flex items-center justify-center gap-2 bg-[var(--fg)] text-[var(--bg)] border border-[var(--fg)] px-4 py-2 font-bold text-xs uppercase tracking-wider hover:bg-[var(--accent)] hover:border-[var(--accent)] transition-colors disabled:opacity-50 cursor-pointer'
+				>
+					{isUploading ? (
+						<Loader2 size={15} className='animate-spin' />
 					) : (
-						filteredFiles.map((file, idx) => (
-							<FileListItem
-								key={idx}
-								fileName={file}
-								onDownload={handleDownload}
-								onDelete={setFileToDelete}
-							/>
-						))
+						<Upload size={15} />
 					)}
-				</div>
+					<span>{isUploading ? 'uploading...' : 'upload_file'}</span>
+				</button>
 			</div>
 
-			{/* MOBILE FAB */}
-			<button
-				onClick={() => fileInputRef.current?.click()}
-				disabled={isUploading}
-				className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-emerald-500 text-black rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] z-40 active:scale-95 transition-transform disabled:opacity-50"
-			>
-				{isUploading ? (
-					<Loader2 size={24} className="animate-spin" />
+			{uploadError && (
+				<div className='mb-4 p-2.5 border border-red-600 text-red-600 text-xs'>
+					error: {uploadError}
+				</div>
+			)}
+
+			{/* Download All ZIP */}
+			{files.length > 0 && (
+				<div className='flex justify-between items-center mb-4'>
+					<span className='text-xs text-[var(--fg-secondary)]'>
+						files ({files.length})
+					</span>
+					<button
+						type='button'
+						onClick={handleDownloadAll}
+						className='inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)] border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--accent)] px-3 py-1.5 transition-colors cursor-pointer'
+					>
+						<Archive size={13} />
+						<span>download_all (.zip)</span>
+					</button>
+				</div>
+			)}
+
+			{/* File List / Upload Drop Area */}
+			<div className='flex-1 flex flex-col gap-2'>
+				{files.length === 0 ? (
+					<button
+						type='button'
+						onClick={() => fileInputRef.current?.click()}
+						disabled={isUploading}
+						className='w-full flex-1 min-h-64 flex flex-col items-center justify-center text-[var(--fg-secondary)] bg-[var(--bg-surface)] border border-dashed border-[var(--border)] hover:border-[var(--accent)] hover:text-[var(--fg)] transition-colors cursor-pointer p-8'
+					>
+						<FileIcon size={36} className='mb-3 text-[var(--accent)]' />
+						<p className='text-sm font-bold text-[var(--fg)] uppercase tracking-wider'>
+							{isUploading ? 'Uploading file...' : 'Click to upload a file'}
+						</p>
+						<p className='text-xs text-[var(--fg-secondary)] mt-1'>
+							Files stream directly via pre-signed object storage
+						</p>
+					</button>
+				) : filteredFiles.length === 0 ? (
+					<div className='text-center text-[var(--fg-secondary)] text-xs uppercase py-12 border border-[var(--border)] bg-[var(--bg-surface)]'>
+						No files match query
+					</div>
 				) : (
-					<Plus size={24} />
+					filteredFiles.map((file, idx) => (
+						<FileListItem
+							key={idx}
+							fileName={file}
+							onDownload={handleDownload}
+							onDelete={setFileToDelete}
+						/>
+					))
 				)}
-			</button>
+			</div>
 
 			{/* DELETE CONFIRMATION MODAL */}
 			{fileToDelete && (
@@ -217,6 +220,6 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 					onCancel={() => setFileToDelete(null)}
 				/>
 			)}
-		</div>
+		</main>
 	);
 };

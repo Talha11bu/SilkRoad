@@ -39,10 +39,9 @@ public class NotiffService {
      * @param sessionId the ID of the session that was closed.
      * @param username  the username of the user who ended the session.
      */
-    public void sessionClosedNotiff(String sessionId, String username) {
+    public void sessionClosedNotiff(String sessionId) {
         String payload = String.format("Session %s has been successfully ended. All associated files have been deleted.", sessionId);
         String destination = "/topic/session/" + sessionId;
         messagingTemplate.convertAndSend(destination, payload);
-
     }
 }
