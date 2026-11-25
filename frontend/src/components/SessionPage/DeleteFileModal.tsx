@@ -1,5 +1,4 @@
 import { AlertTriangle } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface DeleteFileModalProps {
 	fileName: string;
@@ -13,44 +12,34 @@ export const DeleteFileModal = ({
 	onConfirm,
 	onCancel,
 }: DeleteFileModalProps) => (
-	<motion.div
-		initial={{ opacity: 0 }}
-		animate={{ opacity: 1 }}
-		exit={{ opacity: 0 }}
-		className="fixed inset-0 z-100 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-	>
-		<motion.div
-			initial={{ scale: 0.95, y: 10 }}
-			animate={{ scale: 1, y: 0 }}
-			exit={{ scale: 0.95, y: 10 }}
-			className="bg-neutral-900 border border-white/10 p-8 rounded-2xl max-w-sm w-full text-center space-y-6 shadow-2xl"
-		>
-			<AlertTriangle className="text-red-500 mx-auto" size={48} />
+	<div className='fixed inset-0 z-100 bg-black/70 flex items-center justify-center p-4'>
+		<div className='bg-[var(--bg)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-6'>
+			<AlertTriangle className='text-red-500 mx-auto' size={48} />
 			<div>
-				<h2 className="text-white font-black uppercase tracking-widest text-lg">
+				<h2 className='text-[var(--fg)] font-black uppercase tracking-widest text-lg'>
 					Purge File?
 				</h2>
-				<p className="text-neutral-400 font-mono text-xs mt-2 truncate px-4">
+				<p className='text-[var(--fg-secondary)] font-mono text-xs mt-2 truncate px-4'>
 					{fileName}
 				</p>
-				<p className="text-neutral-500 font-mono text-[10px] mt-2 uppercase tracking-widest">
+				<p className='text-[var(--fg-secondary)] font-mono text-[10px] mt-2 uppercase tracking-widest'>
 					This action cannot be undone.
 				</p>
 			</div>
-			<div className="flex gap-4">
+			<div className='flex gap-4'>
 				<button
 					onClick={onCancel}
-					className="flex-1 py-3 bg-white/5 border border-white/10 rounded-lg text-white font-mono text-xs hover:bg-white/10 transition-colors uppercase tracking-widest"
+					className='flex-1 py-3 bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--fg)] font-mono text-xs hover:border-[var(--fg)] transition-colors uppercase tracking-widest cursor-pointer'
 				>
 					Cancel
 				</button>
 				<button
 					onClick={onConfirm}
-					className="flex-1 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 font-bold font-mono text-xs hover:bg-red-500 hover:text-black transition-colors uppercase tracking-widest"
+					className='flex-1 py-3 bg-red-500/10 border border-red-500/30 text-red-500 font-bold font-mono text-xs hover:bg-red-500 hover:text-black transition-colors uppercase tracking-widest cursor-pointer'
 				>
 					Confirm
 				</button>
 			</div>
-		</motion.div>
-	</motion.div>
+		</div>
+	</div>
 );

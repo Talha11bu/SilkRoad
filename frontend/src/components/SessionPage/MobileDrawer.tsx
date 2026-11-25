@@ -1,5 +1,4 @@
 import { Users, X } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { UserList } from './UserList';
 
 interface MobileDrawerProps {
@@ -9,7 +8,7 @@ interface MobileDrawerProps {
 	clientUsername: string;
 }
 
-/** Discord-style mobile slide-in drawer showing connected agents. */
+/** Mobile slide-in drawer showing connected agents. */
 export const MobileDrawer = ({
 	isOpen,
 	onClose,
@@ -21,36 +20,27 @@ export const MobileDrawer = ({
 	return (
 		<>
 			{/* Backdrop */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				exit={{ opacity: 0 }}
+			<div
 				onClick={onClose}
-				className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
+				className='md:hidden fixed inset-0 bg-black/70 z-40'
 			/>
 
-			{/* Sliding Menu */}
-			<motion.div
-				initial={{ x: '100%' }}
-				animate={{ x: 0 }}
-				exit={{ x: '100%' }}
-				transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-				className="md:hidden fixed inset-y-0 right-0 w-64 bg-neutral-950 border-l border-white/10 z-50 p-6 flex flex-col shadow-2xl"
-			>
-				<div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-					<h2 className="text-xs font-bold uppercase tracking-widest text-emerald-500 flex items-center gap-2">
+			{/* Drawer */}
+			<div className='md:hidden fixed inset-y-0 right-0 w-64 bg-[var(--bg)] border-l border-[var(--border)] z-50 p-6 flex flex-col'>
+				<div className='flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4'>
+					<h2 className='text-xs font-bold uppercase tracking-widest text-[var(--accent)] flex items-center gap-2'>
 						<Users size={16} /> Agents ({users.length})
 					</h2>
 					<button
 						onClick={onClose}
-						className="p-1 hover:bg-white/10 rounded-md"
+						className='p-1 border border-[var(--border)] hover:border-[var(--fg)]'
 					>
-						<X size={20} className="text-neutral-400" />
+						<X size={18} className='text-[var(--fg-secondary)]' />
 					</button>
 				</div>
 
 				<UserList users={users} clientUsername={clientUsername} />
-			</motion.div>
+			</div>
 		</>
 	);
 };

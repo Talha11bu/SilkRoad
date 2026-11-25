@@ -1,15 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-	Terminal,
-	Lock,
-	Key,
-	User,
-	Loader2,
-	AlertTriangle,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import TimerDial from './HomePage/TimerDial';
 import { createSession, joinSession, rejoinSession } from '../api/sessionApi';
 import type { SessionData, SessionResponse } from '../types';
 
@@ -42,7 +32,6 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
 					parseInt(inputData.duration as string, 10)
 				);
 			} else {
-				// Try rejoin first if token exists
 				const existingToken = localStorage.getItem('silk_road_jwt');
 				let rejoined = false;
 
@@ -78,7 +67,8 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
 			navigate('/session', { state: { sessionData } });
 		} catch (err: unknown) {
 			console.error('Auth Error:', err);
-			const errMsg = err instanceof Error ? err.message : 'CONNECTION REFUSED BY HOST';
+			const errMsg =
+				err instanceof Error ? err.message : 'CONNECTION REFUSED BY HOST';
 			setError(errMsg);
 			localStorage.removeItem('silk_road_jwt');
 		} finally {
@@ -86,195 +76,158 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
 		}
 	};
 
-	const fadeSlide = {
-		initial: { opacity: 0, y: 10 },
-		animate: { opacity: 1, y: 0 },
-		exit: { opacity: 0, y: -10 },
-		transition: { duration: 0.2 },
-	};
+	const ttlOptions = [5, 10, 15, 30, 60];
 
 	return (
-		<div className='fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 mx-0.5'>
-			<div className='relative bg-neutral-950 border border-white/10 w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-125'>
-				{/* LOADING OVERLAY */}
-				<AnimatePresence>
-					{isLoading && (
-						<motion.div
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							className='absolute inset-0 z-300 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center'
-						>
-							<Loader2
-								className='text-emerald-500 animate-spin mb-6'
-								size={48}
-							/>
-							<h3 className='text-emerald-500 font-mono text-xl tracking-[0.2em] uppercase animate-pulse'>
-								{loadingText}
-							</h3>
-						</motion.div>
-					)}
-				</AnimatePresence>
+		<div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4'>
+			<div className='relative bg-[var(--bg)] border border-[var(--fg)] w-full max-w-lg p-6'>
+				{isLoading && (
+					<div className='absolute inset-0 z-50 bg-[var(--bg)]/95 flex flex-col items-center justify-center p-6 text-center'>
+						<p className='text-sm text-[var(--accent)] font-bold tracking-wider uppercase'>
+							{loadingText}
+						</p>
+						<p className='text-xs text-[var(--fg-secondary)] mt-2'>
+							please wait...
+						</p>
+					</div>
+				)}
 
-				{/* LEFT COLUMN: Controls */}
-				<div className='w-full md:w-[45%] bg-black border-b md:border-b-0 md:border-r border-white/5 p-8 flex flex-col items-center justify-center relative overflow-hidden'>
-					<div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)]' />
-					<AnimatePresence mode='wait'>
-						{activeTab === 'create' ? (
-							<motion.div
-								key='create-info'
-								{...fadeSlide}
-								className='relative z-10 w-full'
-							>
-								<div className='text-center mb-6'>
-									<h3 className='text-white font-black tracking-tighter text-lg'>
-										LIFESPAN
-									</h3>
-									<p className='text-neutral-500 font-mono text-[10px] uppercase tracking-widest'>
-										Select Time-to-Live
-									</p>
-								</div>
-								<TimerDial value={duration} onChange={(v) => setDuration(v)} />
-							</motion.div>
-						) : (
-							<motion.div
-								key='join-info'
-								{...fadeSlide}
-								className='relative z-10 text-center space-y-6'
-							>
-								<div className='w-24 h-24 mx-auto border-2 border-emerald-500/20 rounded-full flex items-center justify-center animate-[spin_10s_linear_infinite]'>
-									<Terminal size={32} className='text-emerald-500/50' />
-								</div>
-								<h3 className='text-white font-black tracking-tighter text-lg'>
-									SECURE JOIN
-								</h3>
-							</motion.div>
-						)}
-					</AnimatePresence>
+				<div className='flex items-center justify-between border-b border-[var(--border)] pb-3 mb-5'>
+					<span className='text-sm font-bold text-[var(--fg)]'>
+						session_auth
+					</span>
+					<button
+						type='button'
+						onClick={onClose}
+						className='text-xs text-[var(--fg-secondary)] hover:text-[var(--fg)] bg-transparent border-0 cursor-pointer'
+					>
+						[close]
+					</button>
 				</div>
 
-				{/* RIGHT COLUMN: Form */}
-				<div className='w-full md:w-[55%] p-8 flex flex-col'>
-					{/* Tab Navigation */}
-					<div className='flex gap-2 mb-8 bg-white/5 p-1 rounded-xl relative'>
-						<motion.div
-							layout
-							className='absolute top-1 bottom-1 w-[calc(50%-4px)] bg-emerald-500 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-							animate={{ left: activeTab === 'create' ? '4px' : 'calc(50%)' }}
+				{/* Tab Navigation */}
+				<div className='flex border border-[var(--border)] mb-5'>
+					<button
+						type='button'
+						onClick={() => {
+							setActiveTab('create');
+							setError(null);
+						}}
+						className={`flex-1 py-2 text-xs uppercase tracking-wider cursor-pointer transition-colors ${
+							activeTab === 'create'
+								? 'bg-[var(--fg)] text-[var(--bg)] font-bold'
+								: 'bg-transparent text-[var(--fg-secondary)] hover:text-[var(--fg)]'
+						}`}
+					>
+						create_session
+					</button>
+					<button
+						type='button'
+						onClick={() => {
+							setActiveTab('join');
+							setError(null);
+						}}
+						className={`flex-1 py-2 text-xs uppercase tracking-wider cursor-pointer border-l border-[var(--border)] transition-colors ${
+							activeTab === 'join'
+								? 'bg-[var(--fg)] text-[var(--bg)] font-bold'
+								: 'bg-transparent text-[var(--fg-secondary)] hover:text-[var(--fg)]'
+						}`}
+					>
+						join_session
+					</button>
+				</div>
+
+				<form onSubmit={handleSubmit} className='space-y-4'>
+					{activeTab === 'create' && (
+						<div>
+							<input type='hidden' name='duration' value={duration} />
+							<label className='block text-xs text-[var(--fg-secondary)] mb-1.5'>
+								ttl (minutes):
+							</label>
+							<div className='flex border border-[var(--border)]'>
+								{ttlOptions.map((opt, idx) => (
+									<button
+										key={opt}
+										type='button'
+										onClick={() => setDuration(opt)}
+										className={`flex-1 py-1.5 text-xs cursor-pointer ${
+											idx > 0 ? 'border-l border-[var(--border)]' : ''
+										} ${
+											duration === opt
+												? 'bg-[var(--accent)] text-[var(--bg)] font-bold'
+												: 'bg-transparent text-[var(--fg-secondary)] hover:text-[var(--fg)]'
+										}`}
+									>
+										{opt}m
+									</button>
+								))}
+							</div>
+						</div>
+					)}
+
+					{activeTab === 'join' && (
+						<div>
+							<label className='block text-xs text-[var(--fg-secondary)] mb-1'>
+								session_id:
+							</label>
+							<input
+								type='text'
+								name='sessionId'
+								placeholder='enter session id'
+								required
+								className='w-full bg-[var(--bg)] border border-[var(--border)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] outline-none placeholder:text-[var(--fg-secondary)]'
+							/>
+						</div>
+					)}
+
+					<div>
+						<label className='block text-xs text-[var(--fg-secondary)] mb-1'>
+							username:
+						</label>
+						<input
+							type='text'
+							name='username'
+							placeholder='enter username'
+							required
+							className='w-full bg-[var(--bg)] border border-[var(--border)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] outline-none placeholder:text-[var(--fg-secondary)]'
 						/>
-						<button
-							type='button'
-							onClick={() => {
-								setActiveTab('create');
-								setError(null);
-							}}
-							className={`relative z-10 flex-1 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${activeTab === 'create' ? 'text-black font-bold' : 'text-neutral-400 hover:text-white'}`}
-						>
-							Create
-						</button>
-						<button
-							type='button'
-							onClick={() => {
-								setActiveTab('join');
-								setError(null);
-							}}
-							className={`relative z-10 flex-1 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${activeTab === 'join' ? 'text-black font-bold' : 'text-neutral-400 hover:text-white'}`}
-						>
-							Connect
-						</button>
 					</div>
 
-					<form
-						onSubmit={handleSubmit}
-						className='flex-1 flex flex-col justify-between'
-					>
-						{activeTab === 'create' && (
-							<input type='hidden' name='duration' value={duration} />
-						)}
+					<div>
+						<label className='block text-xs text-[var(--fg-secondary)] mb-1'>
+							password:
+						</label>
+						<input
+							type='password'
+							name='password'
+							placeholder='enter password'
+							required
+							className='w-full bg-[var(--bg)] border border-[var(--border)] px-3 py-2 text-sm text-[var(--fg)] focus:border-[var(--accent)] outline-none placeholder:text-[var(--fg-secondary)]'
+						/>
+					</div>
 
-						<div className='space-y-4'>
-							<AnimatePresence mode='wait'>
-								{activeTab === 'join' && (
-									<motion.div
-										key='session-input'
-										{...fadeSlide}
-										className='relative overflow-hidden'
-									>
-										<div className='absolute inset-y-0 left-4 flex items-center pointer-events-none'>
-											<Lock size={16} className='text-neutral-500' />
-										</div>
-										<input
-											type='text'
-											name='sessionId'
-											placeholder='SESSION_ID'
-											required
-											className='w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white font-mono text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-neutral-600'
-										/>
-									</motion.div>
-								)}
-							</AnimatePresence>
-
-							<div className='relative'>
-								<div className='absolute inset-y-0 left-4 flex items-center pointer-events-none'>
-									<User size={16} className='text-neutral-500' />
-								</div>
-								<input
-									type='text'
-									name='username'
-									placeholder='USERNAME'
-									required
-									className='w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white font-mono text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-neutral-600'
-								/>
-							</div>
-
-							<div className='relative'>
-								<div className='absolute inset-y-0 left-4 flex items-center pointer-events-none'>
-									<Key size={16} className='text-neutral-500' />
-								</div>
-								<input
-									type='password'
-									name='password'
-									placeholder='PASSWORD'
-									required
-									className='w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white font-mono text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-neutral-600'
-								/>
-							</div>
-
-							{/* ERROR MESSAGE DISPLAY */}
-							<AnimatePresence>
-								{error && (
-									<motion.div
-										initial={{ opacity: 0, height: 0 }}
-										animate={{ opacity: 1, height: 'auto' }}
-										exit={{ opacity: 0, height: 0 }}
-										className='flex items-center gap-2 text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20'
-									>
-										<AlertTriangle size={16} />
-										<p className='font-mono text-xs tracking-wider uppercase'>
-											{error}
-										</p>
-									</motion.div>
-								)}
-							</AnimatePresence>
+					{error && (
+						<div className='p-2.5 border border-red-600 text-red-600 text-xs'>
+							error: {error}
 						</div>
+					)}
 
-						<div className='flex gap-4 mt-8'>
-							<button
-								type='button'
-								onClick={onClose}
-								className='flex-1 px-6 py-4 rounded-xl border border-white/10 text-white font-mono text-sm hover:bg-white/5 hover:border-white/20 transition-all'
-							>
-								CANCEL
-							</button>
-							<button
-								type='submit'
-								className='flex-1 px-6 py-4 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-sm hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-							>
-								{activeTab === 'create' ? 'EXECUTE' : 'ENTER'}
-							</button>
-						</div>
-					</form>
-				</div>
+					<div className='flex gap-3 pt-2'>
+						<button
+							type='button'
+							onClick={onClose}
+							className='flex-1 px-4 py-2.5 border border-[var(--border)] text-[var(--fg)] text-xs uppercase tracking-wider hover:border-[var(--fg)] cursor-pointer bg-transparent'
+						>
+							cancel
+						</button>
+						<button
+							type='submit'
+							className='flex-1 px-4 py-2.5 bg-[var(--fg)] text-[var(--bg)] border border-[var(--fg)] text-xs font-bold uppercase tracking-wider hover:bg-[var(--accent)] hover:border-[var(--accent)] cursor-pointer'
+						>
+							{activeTab === 'create' ? 'execute' : 'enter'}
+						</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	);

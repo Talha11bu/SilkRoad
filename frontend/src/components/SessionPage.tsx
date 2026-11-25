@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Terminal, Users } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import AstrolabeIcon from '../resources/AstrolabeIcon';
 
 import { useSessionWebSocket } from '../hooks/useSessionWebSocket';
 import { exitSession } from '../api/sessionApi';
@@ -82,7 +81,7 @@ export const SessionPage = () => {
 	}
 
 	return (
-		<div className="min-h-screen md:h-screen bg-[#050505] text-white flex flex-col md:flex-row overflow-x-hidden">
+		<div className="min-h-screen md:h-screen bg-[var(--bg)] text-[var(--fg)] flex flex-col md:flex-row overflow-x-hidden">
 			{/* Exit Confirmation Modal */}
 			<SessionModals
 				isErrorOpen={false}
@@ -96,28 +95,28 @@ export const SessionPage = () => {
 			/>
 
 			{/* MOBILE HEADER */}
-			<div className="md:hidden flex items-center justify-between p-4 border-b border-white/10 bg-black/50 backdrop-blur-md z-20">
+			<div className="md:hidden flex items-center justify-between p-3 border-b border-[var(--border)] bg-[var(--bg)] z-20">
 				<div className="flex items-center gap-2">
-					<Terminal size={20} className="text-emerald-500" />
-					<span className="font-bold tracking-widest text-sm uppercase">
-						Silk Road
+					<AstrolabeIcon size={18} mainColor="var(--fg)" accentColor="var(--accent)" />
+					<span className="font-bold tracking-wider text-sm uppercase">
+						silkroad
 					</span>
 				</div>
 				<button
 					onClick={() => setIsMobileDrawerOpen(true)}
-					className="p-2 bg-white/5 rounded-lg text-white"
+					className="px-2 py-1 border border-[var(--border)] text-[var(--fg)] text-xs"
 				>
-					<Users size={20} />
+					[users]
 				</button>
 			</div>
 
 			{/* LEFT COLUMN: Sidebar */}
-			<div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-white/10 bg-black/30 flex flex-col p-6 overflow-y-auto">
+			<div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-[var(--border)] bg-[var(--bg)] flex flex-col p-4 overflow-y-auto">
 				{/* Desktop Header */}
-				<div className="hidden md:flex items-center gap-2 mb-8 shrink-0">
-					<Terminal size={24} className="text-emerald-500" />
-					<span className="font-bold tracking-widest text-lg uppercase">
-						Silk Road
+				<div className="hidden md:flex items-center gap-2 mb-6 shrink-0">
+					<AstrolabeIcon size={20} mainColor="var(--fg)" accentColor="var(--accent)" />
+					<span className="font-bold tracking-wider text-base uppercase">
+						silkroad
 					</span>
 				</div>
 
@@ -156,14 +155,12 @@ export const SessionPage = () => {
 			</div>
 
 			{/* MOBILE DRAWER */}
-			<AnimatePresence>
-				<MobileDrawer
-					isOpen={isMobileDrawerOpen}
-					onClose={() => setIsMobileDrawerOpen(false)}
-					users={users}
-					clientUsername={sessionData.clientUsername}
-				/>
-			</AnimatePresence>
+			<MobileDrawer
+				isOpen={isMobileDrawerOpen}
+				onClose={() => setIsMobileDrawerOpen(false)}
+				users={users}
+				clientUsername={sessionData.clientUsername}
+			/>
 		</div>
 	);
 };

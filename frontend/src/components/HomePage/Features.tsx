@@ -1,46 +1,80 @@
-import { Shield, Lock, Zap } from 'lucide-react';
+import { ShieldIcon, TimerIcon, ZapIcon } from '../../resources/Icons';
 
 export const Features = () => {
-	return (
-		<section
-			id='features'
-			className='max-w-7xl mx-auto px-6 py-24 border-t border-white/5'
-		>
-			<div className='text-center mb-16'>
-				<h2 className='text-3xl font-bold'>Engineered for Stealth</h2>
-			</div>
-			<div className='grid md:grid-cols-3 gap-6'>
-				<FeatureCard
-					icon={<Shield />}
+	const items = [
+		{
+			key: 'E2E',
+			icon: (
+				<ShieldIcon
+					size={24}
+					mainColor='var(--bg)'
+					accentColor='var(--accent)'
 					title='End-to-End'
-					desc='Your files are encrypted before they even leave your browser.'
 				/>
-				<FeatureCard
-					icon={<Lock />}
+			),
+			title: 'End-to-End',
+			desc: 'Your files are encrypted before they even leave your browser.',
+		},
+		{
+			key: 'TTL',
+			icon: (
+				<TimerIcon
+					size={24}
+					mainColor='var(--bg)'
+					accentColor='var(--accent)'
 					title='Self-Destruct'
-					desc='Links expire automatically after a set time or single download.'
 				/>
-				<FeatureCard
-					icon={<Zap />}
+			),
+			title: 'Self-Destruct',
+			desc: 'Links expire automatically after a set time or single download.',
+		},
+		{
+			key: 'MEM',
+			icon: (
+				<ZapIcon
+					size={24}
+					mainColor='var(--bg)'
+					accentColor='var(--accent)'
 					title='Stream Only'
-					desc='Data flows through the server memory—never the hard drive.'
 				/>
+			),
+			title: 'Stream Only',
+			desc: 'Data flows through the server memory — never the hard drive.',
+		},
+	];
+
+	return (
+		<section id='features' className='py-8 border-b border-[var(--border)]'>
+			<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-1.5'>
+				// 02. capabilities
+			</p>
+			<h2 className='text-2xl font-bold text-[var(--fg)] mb-5'>
+				Engineered for Stealth
+			</h2>
+
+			<div className='grid sm:grid-cols-3 gap-4'>
+				{items.map((item) => (
+					<article
+						key={item.key}
+						className='group p-4 bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors'
+					>
+						<div
+							className='icon-box w-8 h-8 flex items-center justify-center mb-3'
+							aria-hidden='true'
+						>
+							<span className='relative z-10 flex items-center justify-center'>
+								{item.icon}
+							</span>
+						</div>
+						<h3 className='text-sm font-bold text-[var(--fg)] mb-1.5'>
+							{item.title}
+						</h3>
+						<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
+							{item.desc}
+						</p>
+					</article>
+				))}
 			</div>
 		</section>
 	);
 };
-interface FeatureCardProps {
-	icon: React.ReactNode;
-	title: string;
-	desc: string;
-}
-
-const FeatureCard = ({ icon, title, desc }: FeatureCardProps) => (
-	<div className='p-8 bg-white/2 border border-white/5 rounded-3xl hover:bg-white/4 hover:border-emerald-500/20 transition-all group'>
-		<div className='text-emerald-500 mb-4 group-hover:scale-110 transition-transform'>
-			{icon}
-		</div>
-		<h3 className='text-lg font-bold text-white mb-2'>{title}</h3>
-		<p className='text-sm text-neutral-500 leading-relaxed'>{desc}</p>
-	</div>
-);

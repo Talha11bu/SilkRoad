@@ -1,126 +1,227 @@
-import { useState } from 'react';
-import { Menu, X, Terminal } from 'lucide-react';
-
-const GithubIcon = () => (
-	<svg
-		viewBox='0 0 24 24'
-		width='18'
-		height='18'
-		fill='none'
-		stroke='currentColor'
-		strokeWidth='2'
-		strokeLinecap='round'
-		strokeLinejoin='round'
-	>
-		<path d='M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5-.73 1.02-1.08 2.25-1 3.5 0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4' />
-		<path d='M9 18c-4.51 2-5-2-7-2' />
-	</svg>
-);
-
-const LinkedinIcon = () => (
-	<svg
-		viewBox='0 0 24 24'
-		width='18'
-		height='18'
-		fill='none'
-		stroke='currentColor'
-		strokeWidth='2'
-		strokeLinecap='round'
-		strokeLinejoin='round'
-	>
-		<path d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z' />
-		<rect width='4' height='12' x='2' y='9' />
-		<circle cx='4' cy='4' r='2' />
-	</svg>
-);
+import { useState, useEffect } from 'react';
+import AstrolabeIcon from '../../resources/AstrolabeIcon';
+import {
+	GitHubIcon,
+	LinkedInIcon,
+	SunIcon,
+	MoonIcon,
+} from '../../resources/Icons';
 
 const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+		if (typeof document !== 'undefined') {
+			const saved = document.documentElement.getAttribute('data-theme');
+			if (saved === 'dark' || saved === 'light') return saved;
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				return 'dark';
+			}
+		}
+		return 'light';
+	});
+
+	useEffect(() => {
+		document.documentElement.setAttribute('data-theme', theme);
+	}, [theme]);
+
+	const toggleTheme = () => {
+		setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+	};
 
 	const navLinks = [
-		{ name: 'About', href: '#about' },
-		{ name: 'Features', href: '#features' },
-		{ name: 'Stack', href: '#stack' },
-		{ name: 'Privacy', href: '#footer' },
+		{ name: 'about', href: '#about' },
+		{ name: 'features', href: '#features' },
+		{ name: 'stack', href: '#stack' },
+		{ name: 'privacy', href: '#footer' },
 	];
 
+	const handleNavClick = (
+		e: React.MouseEvent<HTMLAnchorElement>,
+		href: string
+	) => {
+		if (href.startsWith('#')) {
+			e.preventDefault();
+			const target = document.getElementById(href.slice(1));
+			if (target) {
+				target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				window.history.replaceState(null, '', href);
+			}
+			setIsOpen(false);
+		}
+	};
+
 	return (
-		<nav className='w-full bg-black/50 backdrop-blur-md border-b border-white/5 sticky top-0 z-100'>
-			<div className='max-w-7xl mx-auto px-6 h-16 flex justify-between items-center'>
-				{/* Brand */}
-				<div className='flex items-center gap-2 cursor-pointer group'>
-					<div className='w-8 h-8 bg-emerald-500 rounded flex items-center justify-center'>
-						<a href='/'>
-							<Terminal size={18} className='text-black' />
-						</a>
-					</div>
-					<span className='text-xl font-bold tracking-tighter text-white'>
-						SILK ROAD
+		<header className='w-full border-b border-[var(--border)] bg-[var(--bg)] sticky top-0 z-50'>
+			<nav
+				aria-label='Primary navigation'
+				className='max-w-4xl mx-auto px-4 sm:px-6 h-12 flex justify-between items-center text-sm'
+			>
+				<a
+					href='/'
+					className='group flex items-center gap-2.5 font-bold tracking-tight text-[var(--fg)] no-underline hover:text-[var(--accent)]'
+				>
+					<span
+						className='icon-box w-7 h-7 flex items-center justify-center'
+						aria-hidden='true'
+					>
+						<span className='relative z-10 flex items-center justify-center'>
+							<AstrolabeIcon
+								size={20}
+								mainColor='var(--fg)'
+								accentColor='var(--accent)'
+								title='Silkroad Astrolabe'
+							/>
+						</span>
 					</span>
-				</div>
+					<span>SILK ROAD</span>
+				</a>
 
 				{/* Desktop Links */}
-				<div className='hidden md:flex items-center gap-8'>
+				<div className='hidden sm:flex items-center gap-5'>
 					{navLinks.map((link) => (
 						<a
 							key={link.name}
 							href={link.href}
-							className='text-sm text-neutral-400 hover:text-emerald-400 transition-colors font-mono'
+							onClick={(e) => handleNavClick(e, link.href)}
+							className='text-[var(--fg-secondary)] hover:text-[var(--fg)] no-underline'
 						>
-							{link.name}
+							[{link.name}]
 						</a>
 					))}
-					<div className='flex items-center gap-4 text-neutral-500'>
+					<span className='text-[var(--border)]' aria-hidden='true'>
+						|
+					</span>
+					<a
+						href='https://github.com/talha11bu'
+						target='_blank'
+						rel='noreferrer'
+						aria-label='GitHub'
+						className='icon-box w-6 h-6 text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline flex items-center justify-center'
+					>
+						<span className='relative z-10 flex items-center justify-center'>
+							<GitHubIcon
+								size={16}
+								mainColor='var(--bg-surface)'
+								accentColor='var(--fg)'
+								title='GitHub'
+							/>
+						</span>
+					</a>
+					<a
+						href='https://linkedin.com/in/talha11bu'
+						target='_blank'
+						rel='noreferrer'
+						aria-label='LinkedIn'
+						className='icon-box w-6 h-6 text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline flex items-center justify-center'
+					>
+						<span className='relative z-10 flex items-center justify-center'>
+							<LinkedInIcon
+								size={16}
+								mainColor='var(--bg-surface)'
+								accentColor='var(--fg)'
+								title='LinkedIn'
+							/>
+						</span>
+					</a>
+					<button
+						type='button'
+						onClick={toggleTheme}
+						className='icon-box w-6 h-6 text-[var(--fg-secondary)] hover:text-[var(--accent)] cursor-pointer bg-transparent border-0 p-0 flex items-center justify-center'
+						aria-label='Toggle color theme'
+						title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+					>
+						<span className='relative z-10 flex items-center justify-center'>
+							{theme === 'light' ? (
+								<MoonIcon
+									size={16}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--fg)'
+									title='Dark mode'
+								/>
+							) : (
+								<SunIcon
+									size={16}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--accent)'
+									title='Light mode'
+								/>
+							)}
+						</span>
+					</button>
+				</div>
+
+				{/* Mobile Menu Toggle */}
+				<div className='flex sm:hidden items-center gap-2'>
+					<button
+						type='button'
+						onClick={toggleTheme}
+						className='icon-box w-6 h-6 text-[var(--fg-secondary)] hover:text-[var(--accent)] bg-transparent border-0 p-0 flex items-center justify-center'
+						aria-label='Toggle color theme'
+					>
+						<span className='relative z-10 flex items-center justify-center'>
+							{theme === 'light' ? (
+								<MoonIcon
+									size={16}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--fg)'
+									title='Dark mode'
+								/>
+							) : (
+								<SunIcon
+									size={16}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--accent)'
+									title='Light mode'
+								/>
+							)}
+						</span>
+					</button>
+					<button
+						type='button'
+						onClick={() => setIsOpen(!isOpen)}
+						className='text-[var(--fg)] bg-transparent border border-[var(--border)] px-2 py-0.5 text-xs'
+						aria-expanded={isOpen}
+						aria-label='Toggle navigation menu'
+					>
+						{isOpen ? 'close' : 'menu'}
+					</button>
+				</div>
+			</nav>
+
+			{/* Mobile Links */}
+			{isOpen && (
+				<div className='sm:hidden border-t border-[var(--border)] bg-[var(--bg)] px-4 py-3 flex flex-col gap-2 text-sm'>
+					{navLinks.map((link) => (
+						<a
+							key={link.name}
+							href={link.href}
+							onClick={(e) => handleNavClick(e, link.href)}
+							className='text-[var(--fg-secondary)] hover:text-[var(--fg)] no-underline py-1'
+						>
+							[{link.name}]
+						</a>
+					))}
+					<div className='flex items-center gap-3 pt-2 border-t border-[var(--border)]'>
 						<a
 							href='https://github.com/your-username'
 							target='_blank'
 							rel='noreferrer'
-							className='hover:text-emerald-500 transition-colors'
+							className='text-xs text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline border border-[var(--border)] px-2 py-0.5'
 						>
-							<GithubIcon />
+							github
 						</a>
 						<a
 							href='https://linkedin.com/in/your-profile'
 							target='_blank'
 							rel='noreferrer'
-							className='hover:text-emerald-500 transition-colors'
+							className='text-xs text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline border border-[var(--border)] px-2 py-0.5'
 						>
-							<LinkedinIcon />
+							linkedin
 						</a>
-						<div className='w-px h-4 bg-white/10' />
-						<span className='text-[10px] font-mono tracking-widest uppercase'>
-							v1.0.0
-						</span>
 					</div>
 				</div>
-
-				{/* Burger Button */}
-				<button
-					onClick={() => setIsOpen(!isOpen)}
-					className='md:hidden text-neutral-400'
-				>
-					{isOpen ? <X size={24} /> : <Menu size={24} />}
-				</button>
-			</div>
-
-			{/* Mobile Menu (Push Down) */}
-			<div
-				className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-neutral-900 ${isOpen ? 'max-h-64' : 'max-h-0'}`}
-			>
-				<div className='p-6 flex flex-col gap-6'>
-					{navLinks.map((link) => (
-						<a
-							key={link.name}
-							href={link.href}
-							onClick={() => setIsOpen(false)}
-							className='text-neutral-300 text-lg font-mono'
-						>
-							{link.name}
-						</a>
-					))}
-				</div>
-			</div>
-		</nav>
+			)}
+		</header>
 	);
 };
 

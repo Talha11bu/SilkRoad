@@ -1,157 +1,156 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Lock, AlertCircle } from 'lucide-react';
+import {
+	ShieldIcon,
+	WarningIcon,
+	LockInIcon,
+	GitHubIcon,
+	LinkedInIcon,
+} from '../../resources/Icons';
 
 export const FooterSection = () => {
-	const [isFlipped, setIsFlipped] = useState(false);
-
 	return (
 		<footer
 			id='footer'
-			className='relative mt-20 border-t border-emerald-500/40 bg-black overflow-hidden shadow-[0_-25px_50px_-12px_rgba(16,185,129,0.15)]'
+			className='bg-[var(--bg-surface)] text-[var(--fg)] border-t-2 border-[var(--accent)] mt-4'
 		>
-			<div className='absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.2)_0%,transparent_60%)]' />
-			<div className='absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.12)_0%,transparent_50%)]' />
-			{/*High-Contrast Glow Background */}
-			<div className='relative max-w-7xl mx-auto px-6 py-24'>
-				<div className='grid lg:grid-cols-2 gap-16 items-center'>
+			<div className='max-w-4xl mx-auto px-4 sm:px-6 py-8'>
+				<div className='mb-5'>
+					<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-1'>
+						// 04. legal_handshake
+					</p>
+					<h2 className='text-2xl font-bold text-[var(--fg)]'>
+						PRIVACY &amp; TERMS
+					</h2>
+				</div>
+
+				<div className='grid lg:grid-cols-2 gap-4 items-stretch'>
 					{/* LEFT: Privacy & Security */}
-					<div className='space-y-10'>
-						<div>
-							<h2 className='text-red-500 font-mono text-xs uppercase tracking-[0.4em] mb-4'>
-								LEGAL HANDSHAKE
-							</h2>
-							<h3 className='text-4xl font-black text-white tracking-tighter'>
-								PRIVACY <span className='text-neutral-500'>&</span> TERMS
-							</h3>
-						</div>
-
-						<div className='grid gap-6'>
-							<div className='flex gap-4 group'>
-								<div className='mt-1 text-emerald-500 group-hover:scale-110 transition-transform'>
-									<Shield size={20} />
-								</div>
-								<div>
-									<h4 className='text-white font-bold text-sm uppercase mb-1'>
-										Zero Persistence
-									</h4>
-									<p className='text-neutral-500 text-xs leading-relaxed font-mono'>
-										Data is piped, not stored. Once a session terminates or the
-										timer hits zero, the tunnel collapses and all metadata is
-										purged.
-									</p>
-								</div>
-							</div>
-
-							<div className='flex gap-4 group'>
-								<div className='mt-1 text-red-500 group-hover:scale-110 transition-transform'>
-									<AlertCircle size={20} />
-								</div>
-								<div>
-									<h4 className='text-white font-bold text-sm uppercase mb-1'>
-										Ops-Sec Warning
-									</h4>
-									<p className='text-neutral-500 text-xs leading-relaxed font-mono'>
-										Do not accept session IDs from untrusted sources. Silk Road
-										provides the medium; you provide the discretion.
-									</p>
-								</div>
-							</div>
-
-							<div className='flex gap-4 group'>
-								<div className='mt-1 text-emerald-500 group-hover:scale-110 transition-transform'>
-									<Lock size={20} />
-								</div>
-								<div>
-									<h4 className='text-white font-bold text-sm uppercase mb-1'>
-										Point-to-Point
-									</h4>
-									<p className='text-neutral-500 text-xs leading-relaxed font-mono'>
-										Encrypted handshakes ensure that even we cannot see what
-										flows through the Silk Road.
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* RIGHT: Creator Card */}
-					<div className='flex flex-col items-center lg:items-end justify-center'>
-						<div
-							className='relative w-80 h-48 perspective-1000 cursor-pointer'
-							onClick={() => setIsFlipped(!isFlipped)}
-						>
-							<motion.div
-								animate={{ rotateY: isFlipped ? 180 : 0 }}
-								transition={{
-									duration: 0.6,
-									type: 'spring',
-									stiffness: 260,
-									damping: 20,
-								}}
-								style={{ transformStyle: 'preserve-3d' }}
-								className='w-full h-full'
+					<div className='grid gap-3'>
+						<article className='group p-3 border border-[var(--border)] bg-[var(--bg)] flex gap-3'>
+							<span
+								className='icon-box w-7 h-7 flex items-center justify-center shrink-0 mt-0.5'
+								aria-hidden='true'
 							>
-								{/* Front: Creator Info */}
-								<div className='absolute inset-0 backface-hidden bg-neutral-900 border border-white/10 rounded-3xl p-8 flex flex-col justify-between shadow-2xl'>
-									<div className='flex justify-between items-start'>
-										<div>
-											<p className='text-[10px] font-mono text-emerald-500 uppercase tracking-[0.3em] mb-1'>
-												Architect
-											</p>
-											<h4 className='text-2xl font-black text-white tracking-tighter uppercase'>
-												Laziüm
-											</h4>
-										</div>
-										<div className='h-10 w-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center'>
-											<div className='h-2 w-2 rounded-full bg-emerald-500 animate-pulse' />
-										</div>
-									</div>
-									<div className='flex justify-between items-center'>
-										<p className='text-[9px] text-neutral-500 font-mono uppercase tracking-widest'>
-											Full-Stack Dev
-										</p>
-										<span className='text-[10px] text-emerald-500 font-bold tracking-tighter'>
-											CLICK TO FLIP
-										</span>
-									</div>
-								</div>
+								<span className='relative z-10 flex items-center justify-center'>
+									<ShieldIcon
+										size={20}
+										mainColor='var(--bg-surface)'
+										accentColor='var(--accent)'
+									/>
+								</span>
+							</span>
+							<div>
+								<h3 className='text-xs font-bold text-[var(--fg)] uppercase mb-1'>
+									Zero Persistence
+								</h3>
+								<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
+									Data is piped, not stored. Once a session terminates or the
+									timer hits zero, the tunnel collapses and all metadata is
+									purged.
+								</p>
+							</div>
+						</article>
 
-								{/* Back: Donation Links */}
-								<div
-									className='absolute inset-0 backface-hidden bg-emerald-500 rounded-3xl p-8 flex flex-col justify-between shadow-[0_0_50px_rgba(16,185,129,0.3)]'
-									style={{ transform: 'rotateY(180deg)' }}
-								>
-									<div>
-										<h4 className='text-black font-black text-xl tracking-tighter uppercase'>
-											Support The Project
-										</h4>
-										<p className='text-black/60 text-[10px] font-mono mt-1 font-bold uppercase'>
-											Help keep the servers running.
-										</p>
-									</div>
-									<div className='space-y-2'>
-										{['Buy me a coffee', 'Crypto / Wallet', 'PayPal'].map(
-											(link) => (
-												<a
-													key={link}
-													href='#'
-													className='flex justify-between items-center text-[11px] font-black text-black border-b border-black/10 pb-1 hover:border-black transition-colors'
-												>
-													{link.toUpperCase()}
-													<div className='h-1 w-1 bg-black rounded-full' />
-												</a>
-											),
-										)}
-									</div>
-								</div>
-							</motion.div>
+						<article className='group p-3 border border-[var(--border)] bg-[var(--bg)] flex gap-3'>
+							<span
+								className='icon-box w-7 h-7 flex items-center justify-center shrink-0 mt-0.5'
+								aria-hidden='true'
+							>
+								<span className='relative z-10 flex items-center justify-center'>
+									<WarningIcon
+										size={20}
+										mainColor='var(--bg-surface)'
+										accentColor='var(--accent)'
+									/>
+								</span>
+							</span>
+							<div>
+								<h3 className='text-xs font-bold text-[var(--fg)] uppercase mb-1'>
+									Ops-Sec Warning
+								</h3>
+								<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
+									Do not accept session IDs from untrusted sources. Silk Road
+									provides the medium; you provide the discretion.
+								</p>
+							</div>
+						</article>
+
+						<article className='group p-3 border border-[var(--border)] bg-[var(--bg)] flex gap-3'>
+							<span
+								className='icon-box w-7 h-7 flex items-center justify-center shrink-0 mt-0.5'
+								aria-hidden='true'
+							>
+								<span className='relative z-10 flex items-center justify-center'>
+									<LockInIcon
+										size={20}
+										mainColor='var(--bg-surface)'
+										accentColor='var(--accent)'
+									/>
+								</span>
+							</span>
+							<div>
+								<h3 className='text-xs font-bold text-[var(--fg)] uppercase mb-1'>
+									Point-to-Point
+								</h3>
+								<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
+									Encrypted handshakes ensure that even we cannot see what flows
+									through the Silk Road.
+								</p>
+							</div>
+						</article>
+					</div>
+
+					{/* RIGHT: Creator Box */}
+					<aside className='p-4 sm:p-5 border border-[var(--border)] bg-[var(--bg)] flex flex-col justify-between space-y-4'>
+						<div>
+							<div className='flex items-center justify-between border-b border-[var(--border)] pb-2.5 mb-3'>
+								<span className='text-xs text-[var(--accent)] uppercase tracking-wider font-bold'>
+									creator // talha11bu
+								</span>
+								<span className='text-xs text-[var(--fg-secondary)]'>
+									v1.0.0
+								</span>
+							</div>
+
+							<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
+								Built for fast, ephemeral, zero-log file exchange. Designed with
+								minimalist terminal-inspired aesthetics and sharp geometry.
+							</p>
 						</div>
 
-						<p className='mt-8 text-[10px] font-mono text-neutral-600 uppercase tracking-[0.5em] lg:mr-4'>
-							© 2026 SILK ROAD PROTOCOL
-						</p>
-					</div>
+						<div className='flex flex-wrap gap-3 pt-3 border-t border-[var(--border)] text-xs'>
+							<a
+								href='https://github.com/talha11bu'
+								target='_blank'
+								rel='noreferrer'
+								className='border border-[var(--border)] bg-[var(--bg-surface)] px-2.5 py-1 text-[var(--fg)] hover:border-[var(--accent)] no-underline transition-colors inline-flex items-center gap-1.5'
+							>
+								<GitHubIcon
+									size={14}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--fg)'
+								/>
+								<span>github</span>
+							</a>
+							<a
+								href='https://linkedin.com/in/talha11bu'
+								target='_blank'
+								rel='noreferrer'
+								className='border border-[var(--border)] bg-[var(--bg-surface)] px-2.5 py-1 text-[var(--fg)] hover:border-[var(--accent)] no-underline transition-colors inline-flex items-center gap-1.5'
+							>
+								<LinkedInIcon
+									size={14}
+									mainColor='var(--bg-surface)'
+									accentColor='var(--fg)'
+								/>
+								<span>linkedin</span>
+							</a>
+						</div>
+					</aside>
+				</div>
+
+				<div className='mt-6 pt-4 border-t border-[var(--border)] flex flex-wrap justify-between items-center gap-2 text-xs text-[var(--fg-secondary)]'>
+					<span>silkroad // ephemeral file exchange</span>
+					<span>protocol v1.0.0</span>
 				</div>
 			</div>
 		</footer>

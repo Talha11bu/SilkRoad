@@ -7,7 +7,6 @@ import {
 	Plus,
 	Archive,
 } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
 import {
 	getUploadUrl,
 	uploadToR2,
@@ -211,15 +210,13 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 			</button>
 
 			{/* DELETE CONFIRMATION MODAL */}
-			<AnimatePresence>
-				{fileToDelete && (
-					<DeleteFileModal
-						fileName={fileToDelete}
-						onConfirm={handleDelete}
-						onCancel={() => setFileToDelete(null)}
-					/>
-				)}
-			</AnimatePresence>
+			{fileToDelete && (
+				<DeleteFileModal
+					fileName={fileToDelete}
+					onConfirm={handleDelete}
+					onCancel={() => setFileToDelete(null)}
+				/>
+			)}
 		</div>
 	);
 };
