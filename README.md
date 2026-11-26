@@ -1,74 +1,41 @@
-# SilkRoad 🕸️
+# SilkRoad
 
-SilkRoad is an ephemeral, secure file-sharing platform designed for pure data flow. It creates temporary, encrypted tunnels for users to exchange files in real-time. No storage logs, no persistence—just secure transfers that vanish when the session expires.
+Ephemeral, anonymous file-sharing sessions with zero-persistence storage. Create a password-protected session with a TTL, share the session ID and key, and transfer files directly via pre-signed object storage URLs.
 
-## 🚀 Key Features
+<p align="center">
+  <img src="./Silkroad_demo.webp" alt="SilkRoad Demo" width="100%" />
+</p>
 
-- **Ephemeral Sessions**: Create time-bound sessions (e.g., 15 minutes, 1 hour) protected by a password.
-- **Real-Time Synchronization**: Live updates using WebSockets for user presence and file uploads.
-- **Direct-to-Cloud Uploads**: Files bypass the backend server and upload securely and directly to Cloudflare R2 using pre-signed URLs.
-- **End-to-End TLS**: All network traffic (HTTP & WebSocket) is secured via HTTPS/WSS.
-- **Zero-Footprint**: Sessions and files auto-expire and leave no persistent traces after completion.
+## Features
 
-## 🏗️ Architecture Overview
+- **Anonymous & Ephemeral**: No accounts or usernames — sessions track only active user count and auto-expire when TTL reaches zero or the last user leaves.
+- **Direct Pre-Signed Transfers**: Files stream directly between the browser and S3-compatible storage (LocalStack locally, Cloudflare R2 in production).
+- **Real-Time Sync**: STOMP over WebSocket (`/topic/session/{sessionId}`) updates user count and file lists live.
 
-The system is split into a robust Java Spring Boot backend and a modern React/TypeScript frontend.
+## Tech Stack
 
-### The Flow
-1. **Handshake**: A user creates a session (duration + password) and receives a JWT.
-2. **Tunneling**: Other users join via the Session ID and password, also receiving JWTs.
-3. **Real-time Link**: All users connect to a WebSocket topic (`/topic/session/{sessionId}`) to sync state.
-4. **Data Transfer**: 
-   - A user requests a pre-signed Cloudflare R2 URL from the backend.
-   - The frontend uploads the binary file directly to R2.
-   - Upon success, the frontend notifies the backend.
-   - The backend broadcasts the new file to all connected WebSocket clients.
+- **Frontend**: React 19, TypeScript, Tailwind CSS v4, Bun, `@stomp/stompjs`, `react-router-dom`
+- **Backend**: Java 21, Spring Boot 3, Spring Data JPA (H2), Spring WebSocket (STOMP), JJWT, AWS SDK S3
 
-## 💻 Technical Stack
-
-### Frontend (Client)
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Bun
-- **Styling**: TailwindCSS & Framer Motion (dynamic, glassmorphic UI)
-- **Routing**: React Router DOM
-- **Network**: Fetch API & STOMP over WebSockets (`@stomp/stompjs`)
-
-### Backend (Server)
-- **Framework**: Java 17 + Spring Boot 3
-- **Database**: JPA / Hibernate (H2 for dev / MySQL for production)
-- **Security**: JWT (JSON Web Tokens) & Spring Security
-- **Messaging**: Spring WebSocket with STOMP message broker
-- **Storage**: Cloudflare R2 (S3-compatible API via AWS SDK)
-- **API Documentation**: Swagger / OpenAPI 3
-
-## 🛠️ Local Development
+## Local Development
 
 ### Prerequisites
-- [Java 17+](https://adoptium.net/)
+- [Java 21+](https://adoptium.net/)
 - [Bun](https://bun.sh/)
-- Cloudflare R2 Credentials
+- [Docker](https://www.docker.com/) (for LocalStack S3 when `STORAGE_PROVIDER=local`)
 
-### 1. Backend Setup
-1. Navigate to the `backend/` directory.
-2. Ensure `keystore.p12` exists in your resources for TLS/HTTPS support on port `8443`.
-3. Run the Spring Boot application:
-   ```bash
-   ./gradlew bootRun
-   ```
-4. Access Swagger UI at `https://localhost:8443/swagger-ui/index.html` (Accept the self-signed certificate warning).
+### 1. Backend
+```bash
+cd backend
+cp .env.example .env   # defaults to STORAGE_PROVIDER=local (HTTP :8080 + LocalStack S3)
+./gradlew bootRun      # automatically starts LocalStack via docker compose
+```
+Switch `STORAGE_PROVIDER=prod` (and `SERVER_PORT=8443`, `SERVER_SSL_ENABLED=true`) in `backend/.env` to use Cloudflare R2 over HTTPS.
 
-### 2. Frontend Setup
-1. Navigate to the `frontend/` directory.
-2. Install dependencies via Bun:
-   ```bash
-   bun install
-   ```
-3. Start the Bun dev server (bundles and serves with hot-reload):
-   ```bash
-   bun run dev
-   ```
-4. Open the application in your browser.
-
-## 🔒 Security Notes
-- During local development, self-signed certificates are used to enable `https://` and `wss://`. Browsers will flag this as insecure—you must manually accept the risk/bypass for local testing.
-- Passwords protect session access, while JWTs protect subsequent API interactions and WebSocket connections.
+### 2. Frontend
+```bash
+cd frontend
+bun install
+bun run dev
+```
+Open `http://localhost:3000`.
