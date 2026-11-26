@@ -170,18 +170,7 @@ public class SessionService {
         Session session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new NoSuchElementException("Session not found"));
 
-        List<String> keysToDelete = session.getFiles().stream().map(Files::getR2Key).toList();
-        if (!keysToDelete.isEmpty()) {
-            try {
-                r2Service.deleteFiles(keysToDelete);
-                log.info("Deleted {} object(s) for session {}", keysToDelete.size(), sessionId);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Failed to delete storage files for session " + sessionId + ". Aborting DB deletion.", e);
-            }
-        }
-
-        sessionRepo.delete(session);
+        deleteSessionAndFiles(session);
         notiffService.sessionClosedNotiff(sessionId);
     }
 
@@ -196,10 +185,34 @@ public class SessionService {
         userRepo.delete(userToRemove);
         long remainingCount = Math.max(0, userRepo.countBySessionSessionId(sessionId));
 
+        if (remainingCount == 0) {
+            Session session = sessionRepo.findById(sessionId).orElse(null);
+            if (session != null) {
+                deleteSessionAndFiles(session);
+            }
+            return;
+        }
+
         notiffService.notifySessionMembers(sessionId, new SessionNotiff(
                 SessionNotiff.NotifyType.USER_LEFT,
                 sessionId,
                 String.valueOf(remainingCount)));
+    }
+
+    private void deleteSessionAndFiles(Session session) {
+        String sessionId = session.getSessionId();
+        List<String> keysToDelete = session.getFiles().stream().map(Files::getR2Key).toList();
+        if (!keysToDelete.isEmpty()) {
+            try {
+                r2Service.deleteFiles(keysToDelete);
+                log.info("Deleted {} object(s) for session {}", keysToDelete.size(), sessionId);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to delete storage files for session " + sessionId + ". Aborting DB deletion.", e);
+            }
+        }
+        sessionRepo.delete(session);
+        log.info("Session {} cleaned up", sessionId);
     }
 
     public void deleteFile(String sessionId, String fileName) {

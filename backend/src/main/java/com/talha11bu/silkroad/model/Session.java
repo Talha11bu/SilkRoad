@@ -87,7 +87,7 @@ public class Session {
     @JsonProperty("userCount")
     @Schema(description = "Number of connected participants in the session", example = "2")
     public int getUserCount() {
-        return users != null ? users.size() : 0;
+        return Math.max(1, users != null ? users.size() : 1);
     }
 
     public List<Files> getFiles() {

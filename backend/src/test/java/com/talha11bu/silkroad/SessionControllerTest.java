@@ -19,7 +19,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -80,5 +82,11 @@ class SessionControllerTest {
 
 		JsonNode uploadJson = objectMapper.readTree(uploadUrlResult.getResponse().getContentAsString());
 		assertEquals("http://localhost:4566/silkroad-local/mock-put", uploadJson.get("url").asText());
+
+		mockMvc.perform(delete("/sessions/{id}/leave", sessionId)
+						.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk());
+
+		assertFalse(sessionRepository.existsById(sessionId));
 	}
 }
