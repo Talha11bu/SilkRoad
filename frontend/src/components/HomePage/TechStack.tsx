@@ -17,7 +17,7 @@ const STACK_DATA = [
 		),
 		name: 'Spring Boot 3',
 		role: 'Core Infrastructure',
-		desc: 'Enterprise-level safety and horizontal scalability. Repurposed for modern ephemeral data handling.',
+		desc: 'Session lifecycle, JWT auth, and STOMP WebSocket coordination.',
 		url: 'https://spring.io',
 	},
 	{
@@ -30,8 +30,8 @@ const STACK_DATA = [
 			/>
 		),
 		name: 'Bun Runtime',
-		role: 'High-Speed I/O',
-		desc: 'A modern JavaScript runtime built for speed. Handling session logic with sub-millisecond response times.',
+		role: 'Build & Tooling',
+		desc: 'Fast TypeScript bundling and zero-bloat asset compilation.',
 		url: 'https://bun.sh',
 	},
 	{
@@ -40,13 +40,13 @@ const STACK_DATA = [
 				size={20}
 				mainColor='var(--accent)'
 				accentColor='var(--bg)'
-				title='React 19 & Vite'
+				title='React 19'
 			/>
 		),
-		name: 'React 19 & Vite',
+		name: 'React 19',
 		role: 'Interface Engine',
-		desc: 'Hyper-responsive UI architecture that maintains fluidity even during heavy file streaming operations.',
-		url: 'https://vite.dev',
+		desc: 'Lightweight client UI with live WebSocket session updates.',
+		url: 'https://react.dev',
 	},
 	{
 		icon: (
@@ -54,50 +54,68 @@ const STACK_DATA = [
 				size={20}
 				mainColor='var(--bg)'
 				accentColor='var(--accent)'
-				title='Cloudflare R2'
+				title='Cloudflare R2 / S3'
 			/>
 		),
 		name: 'Cloudflare R2',
-		role: 'Global Storage',
-		desc: 'Edge-based object storage with zero egress fees. Fast, global, and suited for ephemeral file distribution.',
+		role: 'Object Storage',
+		desc: 'S3-compatible edge storage with direct pre-signed transfers.',
 		url: 'https://cloudflare.com',
 	},
 ];
 
 export const TechStack = () => {
 	return (
-		<section id='stack' className='py-8 border-b border-[var(--border)]'>
-			<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-1.5'>
-				// 03. architecture
-			</p>
-			<h2 className='text-2xl font-bold text-[var(--fg)] mb-5'>Tech Stack</h2>
+		<section
+			id='stack'
+			className='py-14 lg:py-20 border-b border-[var(--border)]'
+		>
+			<div className='mb-8'>
+				<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-2'>
+					// 03. architecture
+				</p>
+				<h2 className='text-2xl sm:text-3xl font-bold text-[var(--fg)]'>
+					Tech Stack
+				</h2>
+			</div>
 
-			<div className='grid sm:grid-cols-2 gap-4'>
+			{/* Horizontal Architecture Flow */}
+			<div className='mb-6 p-4 bg-[var(--surface)] border border-[var(--border)] text-xs flex flex-wrap items-center justify-between gap-2'>
+				<span className='text-[var(--fg)] font-bold'>CLIENT</span>
+				<span className='text-[var(--accent)]'>-&gt;</span>
+				<span className='text-[var(--fg)] font-bold'>SPRING API (JWT/WS)</span>
+				<span className='text-[var(--accent)]'>-&gt;</span>
+				<span className='text-[var(--fg)] font-bold'>PRE-SIGNED URL</span>
+				<span className='text-[var(--accent)]'>-&gt;</span>
+				<span className='text-[var(--fg)] font-bold'>R2 / S3 BUCKET</span>
+			</div>
+
+			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'>
 				{STACK_DATA.map((item) => (
 					<article
 						key={item.name}
-						className='group p-4 bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col justify-between'
+						className='group p-5 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col justify-between'
 					>
 						<div>
-							<div className='flex items-center justify-between gap-2 mb-2.5'>
-								<div className='flex items-center gap-2.5'>
-									<span
-										className='icon-box w-7 h-7 flex items-center justify-center shrink-0'
-										aria-hidden='true'
-									>
-										<span className='relative z-10 flex items-center justify-center'>
-											{item.icon}
-										</span>
+							<div className='flex items-center gap-2.5 mb-3'>
+								<span
+									className='icon-box w-7 h-7 flex items-center justify-center shrink-0'
+									aria-hidden='true'
+								>
+									<span className='relative z-10 flex items-center justify-center'>
+										{item.icon}
 									</span>
-									<h3 className='text-sm font-bold text-[var(--fg)]'>
+								</span>
+								<div>
+									<h3 className='text-sm font-bold text-[var(--fg)] leading-tight'>
 										{item.name}
 									</h3>
+									<span className='text-[11px] text-[var(--fg-muted)]'>
+										{item.role}
+									</span>
 								</div>
-								<span className='text-[11px] text-[var(--fg-secondary)]'>
-									{item.role}
-								</span>
 							</div>
-							<p className='text-xs text-[var(--fg-secondary)] leading-relaxed mb-3'>
+							<p className='text-xs text-[var(--fg-secondary)] leading-relaxed mb-4'>
 								{item.desc}
 							</p>
 						</div>
@@ -105,7 +123,7 @@ export const TechStack = () => {
 							href={item.url}
 							target='_blank'
 							rel='noreferrer'
-							className='text-xs text-[var(--accent)] hover:text-[var(--fg)] self-start inline-flex items-center gap-1'
+							className='text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] self-start inline-flex items-center gap-1'
 						>
 							<span>docs</span>
 							<span className='inline-block transition-transform duration-200 group-hover:translate-x-1'>

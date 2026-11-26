@@ -4,6 +4,7 @@ export const Features = () => {
 	const items = [
 		{
 			key: 'E2E',
+			tag: '[E2E]',
 			icon: (
 				<ShieldIcon
 					size={24}
@@ -17,6 +18,7 @@ export const Features = () => {
 		},
 		{
 			key: 'TTL',
+			tag: '[TTL]',
 			icon: (
 				<TimerIcon
 					size={24}
@@ -30,6 +32,7 @@ export const Features = () => {
 		},
 		{
 			key: 'MEM',
+			tag: '[STREAM]',
 			icon: (
 				<ZapIcon
 					size={24}
@@ -39,39 +42,51 @@ export const Features = () => {
 				/>
 			),
 			title: 'Stream Only',
-			desc: 'Data flows through the server memory — never the hard drive.',
+			desc: 'Data flows directly via pre-signed URLs without server disk staging.',
 		},
 	];
 
 	return (
-		<section id='features' className='py-8 border-b border-[var(--border)]'>
-			<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-1.5'>
-				// 02. capabilities
-			</p>
-			<h2 className='text-2xl font-bold text-[var(--fg)] mb-5'>
-				Engineered for Stealth
-			</h2>
+		<section
+			id='features'
+			className='py-14 lg:py-20 border-b border-[var(--border)]'
+		>
+			<div className='mb-8'>
+				<p className='text-xs text-[var(--accent)] uppercase tracking-wider mb-2'>
+					// 02. capabilities
+				</p>
+				<h2 className='text-2xl sm:text-3xl font-bold text-[var(--fg)]'>
+					Engineered for Stealth
+				</h2>
+			</div>
 
-			<div className='grid sm:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
 				{items.map((item) => (
 					<article
 						key={item.key}
-						className='group p-4 bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors'
+						className='group p-5 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col justify-between'
 					>
-						<div
-							className='icon-box w-8 h-8 flex items-center justify-center mb-3'
-							aria-hidden='true'
-						>
-							<span className='relative z-10 flex items-center justify-center'>
-								{item.icon}
-							</span>
+						<div>
+							<div className='flex items-center justify-between mb-4'>
+								<div
+									className='icon-box w-8 h-8 flex items-center justify-center'
+									aria-hidden='true'
+								>
+									<span className='relative z-10 flex items-center justify-center'>
+										{item.icon}
+									</span>
+								</div>
+								<span className='text-[11px] text-[var(--fg-muted)]'>
+									{item.tag}
+								</span>
+							</div>
+							<h3 className='text-base font-bold text-[var(--fg)] mb-2'>
+								{item.title}
+							</h3>
+							<p className='text-xs sm:text-sm text-[var(--fg-secondary)] leading-relaxed'>
+								{item.desc}
+							</p>
 						</div>
-						<h3 className='text-sm font-bold text-[var(--fg)] mb-1.5'>
-							{item.title}
-						</h3>
-						<p className='text-xs text-[var(--fg-secondary)] leading-relaxed'>
-							{item.desc}
-						</p>
 					</article>
 				))}
 			</div>

@@ -54,7 +54,7 @@ const Navbar = () => {
 		<header className='w-full border-b border-[var(--border)] bg-[var(--bg)] sticky top-0 z-50'>
 			<nav
 				aria-label='Primary navigation'
-				className='max-w-4xl mx-auto px-4 sm:px-6 h-12 flex justify-between items-center text-sm'
+				className='max-w-[1180px] mx-auto px-5 sm:px-6 lg:px-10 h-12 flex justify-between items-center text-sm'
 			>
 				<a
 					href='/'
@@ -203,7 +203,7 @@ const Navbar = () => {
 					))}
 					<div className='flex items-center gap-3 pt-2 border-t border-[var(--border)]'>
 						<a
-							href='https://github.com/your-username'
+							href='https://github.com/talha11bu'
 							target='_blank'
 							rel='noreferrer'
 							className='text-xs text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline border border-[var(--border)] px-2 py-0.5'
@@ -211,7 +211,7 @@ const Navbar = () => {
 							github
 						</a>
 						<a
-							href='https://linkedin.com/in/your-profile'
+							href='https://linkedin.com/in/talha11bu'
 							target='_blank'
 							rel='noreferrer'
 							className='text-xs text-[var(--fg-secondary)] hover:text-[var(--accent)] no-underline border border-[var(--border)] px-2 py-0.5'
