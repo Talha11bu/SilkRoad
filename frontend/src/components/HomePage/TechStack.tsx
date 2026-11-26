@@ -64,6 +64,55 @@ const STACK_DATA = [
 	},
 ];
 
+const StackCard = ({
+	item,
+	extraClass = '',
+	ariaHidden = false,
+}: {
+	item: (typeof STACK_DATA)[number];
+	extraClass?: string;
+	ariaHidden?: boolean;
+}) => (
+	<article
+		aria-hidden={ariaHidden}
+		className={`group shrink-0 w-[78vw] max-w-[290px] sm:w-auto sm:max-w-none p-5 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col justify-between ${extraClass}`}
+	>
+		<div>
+			<div className='flex items-center gap-2.5 mb-3'>
+				<span
+					className='icon-box w-7 h-7 flex items-center justify-center shrink-0'
+					aria-hidden='true'
+				>
+					<span className='relative z-10 flex items-center justify-center'>
+						{item.icon}
+					</span>
+				</span>
+				<div>
+					<h3 className='text-sm font-bold text-[var(--fg)] leading-tight'>
+						{item.name}
+					</h3>
+					<span className='text-[11px] text-[var(--fg-muted)]'>{item.role}</span>
+				</div>
+			</div>
+			<p className='text-xs text-[var(--fg-secondary)] leading-relaxed mb-4'>
+				{item.desc}
+			</p>
+		</div>
+		<a
+			href={item.url}
+			target='_blank'
+			rel='noreferrer'
+			tabIndex={ariaHidden ? -1 : undefined}
+			className='text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] self-start inline-flex items-center gap-1'
+		>
+			<span>docs</span>
+			<span className='inline-block transition-transform duration-200 group-hover:translate-x-1'>
+				-&gt;
+			</span>
+		</a>
+	</article>
+);
+
 export const TechStack = () => {
 	return (
 		<section
@@ -79,59 +128,20 @@ export const TechStack = () => {
 				</h2>
 			</div>
 
-			{/* Horizontal Architecture Flow */}
-			<div className='mb-6 p-4 bg-[var(--surface)] border border-[var(--border)] text-xs flex flex-wrap items-center justify-between gap-2'>
-				<span className='text-[var(--fg)] font-bold'>CLIENT</span>
-				<span className='text-[var(--accent)]'>-&gt;</span>
-				<span className='text-[var(--fg)] font-bold'>SPRING API (JWT/WS)</span>
-				<span className='text-[var(--accent)]'>-&gt;</span>
-				<span className='text-[var(--fg)] font-bold'>PRE-SIGNED URL</span>
-				<span className='text-[var(--accent)]'>-&gt;</span>
-				<span className='text-[var(--fg)] font-bold'>R2 / S3 BUCKET</span>
-			</div>
-
-			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'>
-				{STACK_DATA.map((item) => (
-					<article
-						key={item.name}
-						className='group p-5 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col justify-between'
-					>
-						<div>
-							<div className='flex items-center gap-2.5 mb-3'>
-								<span
-									className='icon-box w-7 h-7 flex items-center justify-center shrink-0'
-									aria-hidden='true'
-								>
-									<span className='relative z-10 flex items-center justify-center'>
-										{item.icon}
-									</span>
-								</span>
-								<div>
-									<h3 className='text-sm font-bold text-[var(--fg)] leading-tight'>
-										{item.name}
-									</h3>
-									<span className='text-[11px] text-[var(--fg-muted)]'>
-										{item.role}
-									</span>
-								</div>
-							</div>
-							<p className='text-xs text-[var(--fg-secondary)] leading-relaxed mb-4'>
-								{item.desc}
-							</p>
-						</div>
-						<a
-							href={item.url}
-							target='_blank'
-							rel='noreferrer'
-							className='text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] self-start inline-flex items-center gap-1'
-						>
-							<span>docs</span>
-							<span className='inline-block transition-transform duration-200 group-hover:translate-x-1'>
-								-&gt;
-							</span>
-						</a>
-					</article>
-				))}
+			<div className='overflow-hidden -mx-5 px-5 sm:mx-0 sm:px-0 sm:overflow-visible'>
+				<div className='tech-marquee-track sm:grid-cols-2 lg:grid-cols-4 sm:gap-5'>
+					{STACK_DATA.map((item) => (
+						<StackCard key={item.name} item={item} />
+					))}
+					{STACK_DATA.map((item) => (
+						<StackCard
+							key={`${item.name}-dup`}
+							item={item}
+							extraClass='sm:hidden'
+							ariaHidden
+						/>
+					))}
+				</div>
 			</div>
 		</section>
 	);

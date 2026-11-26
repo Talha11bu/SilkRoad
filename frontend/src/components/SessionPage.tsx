@@ -21,7 +21,7 @@ export const SessionPage = () => {
 	const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 	const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
-	const initialUserCount = sessionData?.session?.userCount ?? 1;
+	const initialUserCount = Math.max(1, sessionData?.session?.userCount ?? 1);
 	const initialFiles =
 		sessionData?.session?.files?.map((f) => f.fileName) ?? [];
 

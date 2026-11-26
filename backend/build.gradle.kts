@@ -61,3 +61,24 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register<Exec>("startLocalStack") {
+    group = "application"
+    description = "Starts the LocalStack S3 Docker container when STORAGE_PROVIDER=local"
+    onlyIf {
+        val envFile = file(".env")
+        val providerFromEnvFile = if (envFile.exists()) {
+            envFile.readLines()
+                .firstOrNull { it.trim().startsWith("STORAGE_PROVIDER=") }
+                ?.substringAfter("=")
+                ?.trim()
+        } else null
+        val provider = System.getenv("STORAGE_PROVIDER") ?: providerFromEnvFile ?: "prod"
+        provider.equals("local", ignoreCase = true)
+    }
+    commandLine("docker", "compose", "up", "-d")
+}
+
+tasks.named("bootRun") {
+    dependsOn("startLocalStack")
+}

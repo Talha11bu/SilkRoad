@@ -1,5 +1,3 @@
-import { File as FileIcon, Download, Trash2 } from 'lucide-react';
-
 interface FileListItemProps {
 	fileName: string;
 	onDownload: (fileName: string) => void;
@@ -14,8 +12,8 @@ export const FileListItem = ({
 }: FileListItemProps) => (
 	<div className='group flex items-center justify-between p-3 bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors'>
 		<div className='flex items-center gap-3 overflow-hidden min-w-0 flex-1'>
-			<div className='w-7 h-7 border border-[var(--border)] bg-[var(--bg)] flex items-center justify-center text-[var(--accent)] shrink-0'>
-				<FileIcon size={15} />
+			<div className='w-7 h-7 border border-[var(--border)] bg-[var(--bg)] flex items-center justify-center text-[var(--accent)] text-[10px] font-bold shrink-0'>
+				FILE
 			</div>
 			<p className='truncate text-sm text-[var(--fg)]' title={fileName}>
 				{fileName}
@@ -29,7 +27,7 @@ export const FileListItem = ({
 				aria-label={`Download ${fileName}`}
 				title='Download'
 			>
-				<Download size={14} />
+				<span className='text-[10px] font-bold'>[dl]</span>
 			</button>
 			<button
 				type='button'
@@ -38,7 +36,7 @@ export const FileListItem = ({
 				aria-label={`Delete ${fileName}`}
 				title='Delete'
 			>
-				<Trash2 size={14} />
+				<span className='text-[10px] font-bold'>[del]</span>
 			</button>
 		</div>
 	</div>

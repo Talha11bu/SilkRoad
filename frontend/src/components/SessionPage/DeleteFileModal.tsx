@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { WarningIcon } from '../../resources/Icons';
 
 interface DeleteFileModalProps {
 	fileName: string;
@@ -14,7 +14,12 @@ export const DeleteFileModal = ({
 }: DeleteFileModalProps) => (
 	<div className='fixed inset-0 z-100 bg-black/70 flex items-center justify-center p-4'>
 		<div className='bg-[var(--bg)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-6'>
-			<AlertTriangle className='text-red-500 mx-auto' size={48} />
+			<WarningIcon
+				className='mx-auto'
+				size={40}
+				mainColor='var(--bg)'
+				accentColor='#dc2626'
+			/>
 			<div>
 				<h2 className='text-[var(--fg)] font-black uppercase tracking-widest text-lg'>
 					Purge File?

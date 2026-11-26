@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { Upload, Search, File as FileIcon, Loader2, Archive } from 'lucide-react';
 import {
 	getUploadUrl,
 	uploadToR2,
@@ -128,16 +127,15 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 			{/* Search & Upload Row */}
 			<div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4 w-full'>
 				<div className='relative flex-1'>
-					<Search
-						size={15}
-						className='absolute left-3 top-1/2 -translate-y-1/2 text-[var(--fg-secondary)]'
-					/>
+					<span className='absolute left-3 top-1/2 -translate-y-1/2 text-[var(--fg-secondary)] text-xs'>
+						&gt;
+					</span>
 					<input
 						type='text'
 						placeholder='search files...'
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className='w-full bg-[var(--bg-surface)] border border-[var(--border)] pl-9 pr-3 py-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--accent)] placeholder:text-[var(--fg-secondary)]'
+						className='w-full bg-[var(--bg-surface)] border border-[var(--border)] pl-7 pr-3 py-2 text-xs text-[var(--fg)] outline-none focus:border-[var(--accent)] placeholder:text-[var(--fg-secondary)]'
 					/>
 				</div>
 
@@ -147,12 +145,7 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 					disabled={isUploading}
 					className='shrink-0 inline-flex items-center justify-center gap-2 bg-[var(--fg)] text-[var(--bg)] border border-[var(--fg)] px-4 py-2 font-bold text-xs uppercase tracking-wider hover:bg-[var(--accent)] hover:border-[var(--accent)] transition-colors disabled:opacity-50 cursor-pointer'
 				>
-					{isUploading ? (
-						<Loader2 size={15} className='animate-spin' />
-					) : (
-						<Upload size={15} />
-					)}
-					<span>{isUploading ? 'uploading...' : 'upload_file'}</span>
+					<span>{isUploading ? 'uploading...' : 'upload_file +'}</span>
 				</button>
 			</div>
 
@@ -173,8 +166,7 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 						onClick={handleDownloadAll}
 						className='inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent)] border border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--accent)] px-3 py-1.5 transition-colors cursor-pointer'
 					>
-						<Archive size={13} />
-						<span>download_all (.zip)</span>
+						<span>[zip] download_all</span>
 					</button>
 				</div>
 			)}
@@ -188,7 +180,9 @@ export const FilePanel = ({ sessionId, password, files }: FilePanelProps) => {
 						disabled={isUploading}
 						className='w-full flex-1 min-h-64 flex flex-col items-center justify-center text-[var(--fg-secondary)] bg-[var(--bg-surface)] border border-dashed border-[var(--border)] hover:border-[var(--accent)] hover:text-[var(--fg)] transition-colors cursor-pointer p-8'
 					>
-						<FileIcon size={36} className='mb-3 text-[var(--accent)]' />
+						<span className='mb-3 text-xs font-bold text-[var(--accent)] border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1'>
+							[ + ]
+						</span>
 						<p className='text-sm font-bold text-[var(--fg)] uppercase tracking-wider'>
 							{isUploading ? 'Uploading file...' : 'Click to upload a file'}
 						</p>

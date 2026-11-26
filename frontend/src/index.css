@@ -77,12 +77,7 @@ body,
 }
 
 @media (prefers-reduced-motion: reduce) {
-	*,
-	*::before,
-	*::after {
-		animation-duration: 0.01ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
+	html {
 		scroll-behavior: auto !important;
 	}
 }
@@ -129,4 +124,34 @@ select {
 .icon-box:hover::before {
 	transform: rotate(45deg);
 	border-color: var(--accent);
+}
+
+@keyframes tech-marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.tech-marquee-track {
+	display: flex;
+	gap: 1rem;
+	padding-right: 1rem;
+	width: max-content;
+	animation: tech-marquee 28s linear infinite;
+}
+
+.tech-marquee-track:hover,
+.tech-marquee-track:active {
+	animation-play-state: paused;
+}
+
+@media (min-width: 640px) {
+	.tech-marquee-track {
+		display: grid;
+		width: auto;
+		animation: none;
+	}
 }

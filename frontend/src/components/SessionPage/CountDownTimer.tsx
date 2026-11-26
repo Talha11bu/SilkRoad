@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { TimerIcon } from '../../resources/Icons';
 
 interface CountdownTimerProps {
 	expiresAt?: string;
@@ -81,7 +81,11 @@ export const CountdownTimer = ({
 			}`}
 			title='Time remaining'
 		>
-			<Clock size={13} />
+			<TimerIcon
+				size={13}
+				mainColor='var(--bg-surface)'
+				accentColor={isLowTime ? '#dc2626' : 'var(--accent)'}
+			/>
 			<span>{formatTime(timeLeft)}</span>
 		</div>
 	);

@@ -1,4 +1,4 @@
-import { AlertTriangle, ShieldAlert } from 'lucide-react';
+import { WarningIcon, ShieldIcon } from '../../resources/Icons';
 
 interface SessionModalsProps {
 	isErrorOpen: boolean;
@@ -27,7 +27,12 @@ export const SessionModals = ({
 		{isErrorOpen && (
 			<div className='min-h-screen bg-[var(--bg)] flex items-center justify-center p-4'>
 				<div className='bg-[var(--bg-surface)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-5'>
-					<AlertTriangle className='text-red-600 mx-auto' size={40} />
+					<WarningIcon
+						className='mx-auto'
+						size={40}
+						mainColor='var(--bg-surface)'
+						accentColor='#dc2626'
+					/>
 					<div>
 						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							System Failure
@@ -52,7 +57,12 @@ export const SessionModals = ({
 		{isExpiredOpen && (
 			<div className='min-h-screen bg-[var(--bg)] flex items-center justify-center p-4'>
 				<div className='bg-[var(--bg-surface)] border border-[var(--border)] p-8 max-w-sm w-full text-center space-y-5'>
-					<ShieldAlert className='text-[var(--accent)] mx-auto' size={40} />
+					<ShieldIcon
+						className='mx-auto'
+						size={40}
+						mainColor='var(--bg-surface)'
+						accentColor='var(--accent)'
+					/>
 					<div>
 						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							Session Expired
@@ -77,7 +87,12 @@ export const SessionModals = ({
 		{isExitOpen && (
 			<div className='fixed inset-0 z-100 bg-black/60 flex items-center justify-center p-4'>
 				<div className='bg-[var(--bg)] border border-[var(--fg)] p-6 max-w-sm w-full text-center space-y-5'>
-					<AlertTriangle className='text-red-600 mx-auto' size={36} />
+					<WarningIcon
+						className='mx-auto'
+						size={36}
+						mainColor='var(--bg)'
+						accentColor='#dc2626'
+					/>
 					<div>
 						<h2 className='text-[var(--fg)] font-bold uppercase tracking-wider text-base'>
 							{isHost ? 'Terminate Session?' : 'Disconnect?'}

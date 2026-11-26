@@ -1,4 +1,3 @@
-import { Copy, CheckCircle2, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AstrolabeIcon from '../../resources/AstrolabeIcon';
 import { SunIcon, MoonIcon } from '../../resources/Icons';
@@ -85,9 +84,9 @@ export const SessionSidebar = ({
 							title='Copy session ID'
 						>
 							{copiedField === 'id' ? (
-								<CheckCircle2 size={13} />
+								<span className='text-[10px] font-bold'>[ok]</span>
 							) : (
-								<Copy size={13} />
+								<span className='text-[10px]'>[copy]</span>
 							)}
 						</button>
 					</div>
@@ -105,9 +104,9 @@ export const SessionSidebar = ({
 								title='Copy access key'
 							>
 								{copiedField === 'pass' ? (
-									<CheckCircle2 size={13} />
+									<span className='text-[10px] font-bold'>[ok]</span>
 								) : (
-									<Copy size={13} />
+									<span className='text-[10px]'>[copy]</span>
 								)}
 							</button>
 						</div>
@@ -118,7 +117,7 @@ export const SessionSidebar = ({
 						className='flex items-center gap-1.5 px-2.5 py-1 border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--fg)]'
 						title='Connected users in session'
 					>
-						<Users size={13} className='text-[var(--accent)]' />
+						<span className='text-[var(--accent)]'>users:</span>
 						<span className='font-bold'>{userCount}</span>
 					</div>
 

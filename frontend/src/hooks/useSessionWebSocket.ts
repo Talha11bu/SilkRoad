@@ -50,8 +50,8 @@ export function useSessionWebSocket(
 							case 'USER_LEFT':
 								setUserCount((prev) =>
 									Number.isNaN(parsedCount)
-										? Math.max(0, prev - 1)
-										: parsedCount
+										? Math.max(1, prev - 1)
+										: Math.max(1, parsedCount)
 								);
 								break;
 							case 'FILE_UPLOADED':
